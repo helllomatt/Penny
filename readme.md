@@ -80,6 +80,7 @@ What is the name of your theme? (no spaces)
 |{sitename}.theme.folder|string|Name of the folder that the theme to be loaded for this site lives in
 |{sitename}.domain|string|Name of the domain URL that the site should respond to
 
+
 ## Complete `./sites/{sitename}/config.json` Example
 
 ```
@@ -271,6 +272,8 @@ Output: "Hello, Matt!"
 <?php
 
 namespace Test;
+
+use Penny\JSON;
 
 class Greeting {
     public static function say_hello() {
