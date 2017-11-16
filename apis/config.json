@@ -1,6 +1,6 @@
 {
     "autoload": {
-        "PennyCLI\\": "setup/"
+        "PennyCLI\\": "/"
     },
     "routes": {
         "hello": {
@@ -9,6 +9,9 @@
                 "name": "required",
                 "age": "optional"
             }
+        },
+        "new-site": {
+            "action": "PennyCLI\\SiteQuickstart::new_site"
         }
     }
 }

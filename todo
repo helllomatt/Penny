@@ -1,0 +1,8 @@
+1. Quick Configuration INIT
+    Command: php penny init
+    Behind the scenes:
+        composer dump-autoload -o
+    Questions:
+        1. What would you like your API endpoint to be named? (api)
+        1. What is the name of your website? (default)
+        2. What URL should your website respond to? (eg: localhost/penny-quickstart)

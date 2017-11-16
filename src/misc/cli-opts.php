@@ -71,4 +71,8 @@ class CliOpts {
         $line = rtrim(fgets($fp, 1024));
         return $line;
     }
+
+    public static function out($text = "") {
+        echo "\t".$text.PHP_EOL;
+    }
 }
