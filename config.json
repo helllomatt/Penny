@@ -1,17 +1,3 @@
 {
-    "penny": {
-        "folder": "penny",
-        "theme": {
-            "folder": "penny"
-        },
-        "domain": "localhost/projects/penny/p"
-    },
-    "apiIdentity": "api",
-    "globalFolder": "themes/global",
-    "globalScripts": [
-        "global/test-global.js"
-    ],
-    "globalStyles": [
-        "global/main-global.css"
-    ]
+    "apiRootFolder": "apis"
 }

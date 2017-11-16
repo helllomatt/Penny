@@ -38,15 +38,13 @@ class CliOpts {
             } elseif ($pos === false) continue;
             else {
                 $var = $req_vars[$pos + 1];
-                if (substr($var, 0, 1) == '"') {
-                    $string = [];
-                    for ($i = $pos + 1; $i < count($req_vars); $i++) {
-                        $string[] = $req_vars[$i];
-                        if (substr($req_vars[$i], -1, 1) == '"') break;
-                    }
-
-                    $var = trim(implode(' ', $string), '"');
+                $string = [];
+                for ($i = $pos + 1; $i < count($req_vars); $i++) {
+                    if (substr($req_vars[$i], 0, 2) == '--') break;
+                    $string[] = $req_vars[$i];
                 }
+
+                $var = trim(implode(' ', $string), '"');
                 $this->found_options[$key] = $var;
             }
         }
