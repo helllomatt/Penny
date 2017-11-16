@@ -261,7 +261,7 @@ Action to run: Test\\Greeting::say_hello_name
 Output: {"greeting": "Hello Matt!"}
 
 From CLI:
-User types: php index.php say_hello --name Matt
+User types: php penny say_hello --name Matt
 Action to run: Test\\Greeting::say_hello_echo
 Output: "Hello, Matt!"
 ```
