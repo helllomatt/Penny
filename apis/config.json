@@ -3,15 +3,14 @@
         "PennyCLI\\": "/"
     },
     "routes": {
-        "hello": {
-            "action": "PennyCLI\\Setup::say_hello",
-            "cli-options": {
-                "name": "required",
-                "age": "optional"
-            }
+        "init": {
+            "action": "PennyCLI\\Setup::init"
         },
         "new-site": {
             "action": "PennyCLI\\SiteQuickstart::new_site"
+        },
+        "new-theme": {
+            "action": "PennyCLI\\ThemeQuickstart::new_theme"
         }
     }
 }

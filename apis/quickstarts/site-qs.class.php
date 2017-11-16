@@ -20,10 +20,16 @@ class SiteQuickstart {
         if (file_exists($path)) unlink($path);
     }
 
-    public static function new_site() {
-        $sitename = CliOpts::readline("What is the name of your website? (no spaces) ");
+    public static function new_site($first = false, $theme = null) {
+        if ($first) {
+            $sitename = CliOpts::readline("What is the name of your first website? (no spaces) ");
+        } else {
+            $sitename = CliOpts::readline("What is the name of your website? (no spaces) ");
+        }
         $domain = CliOpts::readline("What URL should your website respond to? (eg: localhost/".$sitename.") ");
-        $theme = CliOpts::readline("What theme are you going to use? ");
+        if ($theme == null) {
+            $theme = CliOpts::readline("What theme are you going to use? ");
+        }
 
         $config = json_decode(file_get_contents("./config.json"), true);
         $root = isset($config['siteRootFolder']) ? $config['siteRootFolder'] : "sites";
