@@ -63,4 +63,12 @@ class ViewResponseTest extends TestCase {
         $this->expectOutputString('<html><body>hi!'.PHP_EOL.'</body></html>'.PHP_EOL);
         $vr->respond();
     }
+
+    public function testGlobalScripts() {
+        $this->assertEquals("<script src='global/test.js'></script><script src='global/framework.js'></script>", ViewResponse::getGlobalScripts());
+    }
+
+    public function testGlobalStyles() {
+        $this->assertEquals("<link rel='stylesheet' type='text/css' href='global/test.css'>", ViewResponse::getGlobalStyles());
+    }
 }

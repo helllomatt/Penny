@@ -137,7 +137,46 @@ class ViewResponse {
         include $file;
     }
 
+    /**
+     * Defines the base href for proper linking
+     *
+     * @return string html tag of baseref
+     */
     public function baseHref() {
         return "<base href='/".trim(str_replace($_SERVER['HTTP_HOST'], "", $this->config['domain']), "/")."/'>";
+    }
+
+    /**
+     * Returns an HTML string with all of the global scripts
+     *
+     * @return string
+     */
+    public static function getGlobalScripts() {
+        $scripts = Config::get("globalScripts", true);
+        if (!$scripts) return "";
+
+        $html = [];
+        foreach ($scripts as $script) {
+            $html[] = "<script src='".$script."'></script>";
+        }
+
+        return implode("", $html);
+    }
+
+    /**
+     * Returns an HTML string with all the global styles
+     *
+     * @return string
+     */
+    public static function getGlobalStyles() {
+        $styles = Config::get("globalStyles", true);
+        if (!$styles) return "";
+
+        $html = [];
+        foreach ($styles as $style) {
+            $html[] = "<link rel='stylesheet' type='text/css' href='".$style."'>";
+        }
+
+        return implode("", $html);
     }
 }

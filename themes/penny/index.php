@@ -4,6 +4,7 @@
         <meta charset='utf-8' />
         <?php echo $view->baseHref(); ?>
         <title><?php echo $view->variable('title'); ?> | Penny</title>
+        <?php echo Penny\ViewResponse::getGlobalStyles(); ?>
         <link rel="stylesheet" href="theme/css/main.css" />
     </head>
 
@@ -14,5 +15,6 @@
         ?>
 
         <script src="js/test.js"></script>
+        <?php echo Penny\ViewResponse::getGlobalScripts(); ?>
     </body>
 </html>

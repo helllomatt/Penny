@@ -153,10 +153,6 @@ class Request {
         return $this->domain;
     }
 
-    private function potentialFile() {
-        return substr($this->found_variables['pennyRoute'], -4, 1) == ".";
-    }
-
     /**
      * Defines the site this request is meant for.
      *
@@ -176,7 +172,7 @@ class Request {
                 $this->for_site = $site_name;
                 $cleaned_path = ltrim(str_replace($data['domain'], "", $domain), "/");
                 if ($cleaned_path == "") {
-                    if ($this->potentialFile()) {
+                    if ($this->checkRealFile(true)) {
                         $this->found_variables['pennyRoute'] = str_replace($data['domain'], "", $this->found_variables['pennyRoute'])."/";
                     } else {
                         $this->found_variables['pennyRoute'] = "/";
@@ -207,19 +203,22 @@ class Request {
      *
      * @return null
      */
-    public function checkRealFile() {
+    public function checkRealFile($return_only = false) {
         if (!isset($this->found_variables['pennyRoute'])) {
             throw new RequestException('No route was given in the request.');
         }
 
         $route = explode('/', $this->found_variables['pennyRoute']);
         $from = $route[0];
-        if (in_array($from, ['theme'])) array_shift($route);
+        if (in_array($from, ['theme', 'global'])) array_shift($route);
         $this->found_variables['pennyRoute'] = rtrim(implode('/', $route), "/");
 
         if ($from == 'theme') {
             $theme_folder = Config::forSite($this->for_site)['theme']['folder'];
             $path = REL_ROOT.'themes/'.$theme_folder.'/'.$this->found_variables['pennyRoute'];
+        } elseif ($from == 'global') {
+            $global_folder = Config::get("globalFolder");
+            $path = REL_ROOT.$global_folder."/".$this->found_variables['pennyRoute'];
         } else {
             $config = Config::forSite($this->for_site);
             $site_folder = $config['folder'];
@@ -230,13 +229,17 @@ class Request {
 
         if (file_exists($path) && !is_dir($path)) {
             $extension = (new \SplFileInfo($path))->getExtension();
+            if ($return_only) return true;
             $this->found_real_file = true;
             $this->file_path = $path;
 
             if (in_array($extension, ['php', 'json'])) {
+                if ($return_only) return false;
                 $this->allow_real_file = false;
             }
         }
+
+        if ($return_only) return false;
     }
 
     /**

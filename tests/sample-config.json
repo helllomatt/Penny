@@ -13,5 +13,12 @@
         },
         "domain": "localhost/test"
     },
-    "apiIdentity": "api"
+    "apiIdentity": "api",
+    "globalScripts": [
+        "global/test.js",
+        "global/framework.js"
+    ],
+    "globalStyles": [
+        "global/test.css"
+    ]
 }
