@@ -31,7 +31,7 @@ class ViewResponse {
             throw new ResponseException('The view file hasn\'t been defined.');
         }
 
-        $file = REL_ROOT.'sites/'.$this->site_folder.'/'.$this->route->data()['view'];
+        $file = REL_ROOT.Config::siteFolder($this->site_folder).'/'.$this->route->data()['view'];
         if (!file_exists($file)) {
             throw new ResponseException('The view file specified doesn\'t exist.');
         } else {

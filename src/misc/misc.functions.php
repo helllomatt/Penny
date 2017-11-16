@@ -23,7 +23,7 @@ function isJSON($string) {
  * @return none
  */
 function autoload($prefix, $base_dir) {
-    $base_dir = REL_ROOT.'apis/'.$base_dir;
+    $base_dir = REL_ROOT.Config::apiFolder().$base_dir;
     spl_autoload_register(function ($class) use ($prefix, $base_dir) {
         $len = strlen($prefix);
         if (strncmp($prefix, $class, $len) !== 0) return;

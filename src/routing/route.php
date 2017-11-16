@@ -18,7 +18,7 @@ class Route {
         $this->request = $request;
         if (substr($route_string, 0, 1) == '/') $route_string = ltrim($route_string, '/');
         if (substr($route_string, -1) == '/') $route_string = substr($route_string, 0, -1);
-        $this->route_string = preg_replace('/\/+/', '/', $route_string);
+        $this->route_string = clean_slashes($route_string);
         $this->route_data = $data;
         $this->uri_route = $uri_route;
         return $this;
@@ -92,7 +92,7 @@ class Route {
 
             if (substr($route[$i], 0, 1) === '{' && substr($route[$i], -1) === '}') {
                 if (!isset($this->uri_route[$i])) continue;
-                $this->found_variables[str_replace(['{:', '}'], "", $route[$i])] = $this->uri_route[$i];
+                $this->found_variables[str_replace(['{', '}'], "", $route[$i])] = $this->uri_route[$i];
                 continue;
             }
 
@@ -104,7 +104,7 @@ class Route {
 
         if (isset($this->route_data['vars'])) $this->request->addVariables($this->route_data['vars']);
         if (isset($this->route_data['file'])) {
-            $this->load_file = REL_ROOT.'sites/'.$this->request->site().'/'.$this->route_data['file'];
+            $this->load_file = REL_ROOT.Config::siteFolder($this->request->site()).'/'.$this->route_data['file'];
             if (!file_exists($this->load_file)) return false;
             $this->using_view_file = false;
         }

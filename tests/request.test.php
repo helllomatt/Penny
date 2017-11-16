@@ -11,24 +11,24 @@ class RequestTests extends TestCase {
     }
 
     public function testFindingMethod() {
-        $request = new Request(['pennySite' => 'test']);
+        $request = new Request([]);
         $this->assertEquals('cli', $request->method());
     }
 
     public function testFindingVariables() {
-        $request = new Request(['abc', 'def', 'pennySite' => 'test']);
-        $this->assertEquals(['abc', 'def', 'pennySite' => 'test'], $request->variables());
+        $request = new Request(['abc', 'def']);
+        $this->assertEquals(['abc', 'def'], $request->variables());
     }
 
     public function testGettingSite() {
-        $request = (new Request(['pennySite' => 'test']))->overrideMethod('get')->findSite();
-        $this->assertEquals('test', $request->site());
+        $request = (new Request(['pennyRoute' => 'test']))->overrideMethod('get')->setDomain("localhost/test")->findSite();
+        $this->assertEquals('defaultSite', $request->site());
     }
 
     public function testRealFile() {
         Config::load('./tests/sample-config.json');
-        $request = (new Request(['pennySite' => 'defaultSite', 'pennyRoute' => 'realfile.txt']))
-            ->overrideMethod('get')->findSite();
+        $request = (new Request(['pennyRoute' => 'realfile.txt']))
+            ->overrideMethod('get')->setDomain("localhost/test")->findSite();
 
         $request->checkRealFile();
 

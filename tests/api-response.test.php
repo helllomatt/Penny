@@ -1,10 +1,7 @@
 <?php
 
 use Penny\ApiResponse;
-use Penny\Route;
-use Penny\Request;
 use Penny\Config;
-use Penny\Router;
 use PHPUnit\Framework\TestCase;
 
 class ApiResponseTest extends TestCase {
@@ -13,25 +10,23 @@ class ApiResponseTest extends TestCase {
     }
 
     public function testCheckingAction() {
-        $request = (new Request(['pennySite' => 'defaultSite', 'pennyRoute' => '/api/test']))->overrideMethod('get')->findSite();
-        $router = new Router($request);
-        $route = new Route($request, '/test', ["action" => "Test\\Greeting::say_hello"], ['test']);
+        include "tests/includes/test.class.php";
+        $route = $this->createMock("Penny\Route");
+        $route->method("data")->willReturn(['action' => "Test\Greeting::say_hello"]);
         $ar = new ApiResponse($route, ['apiIdentity' => 'api']);
         $this->assertTrue($ar->actionExists());
     }
 
     public function testCheckingActionUnloadedClass() {
-        $request = (new Request(['pennySite' => 'defaultSite', 'pennyRoute' => '/api/test']))->overrideMethod('get')->findSite();
-        $router = new Router($request);
-        $route = new Route($request, '/test', ["action" => "asdf::say_hello"], ['test']);
+        $route = $this->createMock("Penny\Route");
+        $route->method("data")->willReturn(['action' => "Test\Undefined::say_hello"]);
         $this->expectException('Penny\ResponseException');
         $ar = new ApiResponse($route, ['apiIdentity' => 'api']);
     }
 
     public function testCheckingActionBadMethod() {
-        $request = (new Request(['pennySite' => 'defaultSite', 'pennyRoute' => '/api/test']))->overrideMethod('get')->findSite();
-        $router = new Router($request);
-        $route = new Route($request, '/test', ["action" => "Test\\Greeting::asdf"], ['test']);
+        $route = $this->createMock("Penny\Route");
+        $route->method("data")->willReturn(['action' => "Test\Greeting::say_undefined"]);
         $this->expectException('Penny\ResponseException');
         $ar = new ApiResponse($route, ['apiIdentity' => 'api']);
     }

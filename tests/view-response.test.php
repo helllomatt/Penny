@@ -12,7 +12,8 @@ class ViewResponseTest extends TestCase {
     }
 
     public function testCheckingViewFile() {
-        $request = (new Request(['pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
         $route = new Route($request, '/', ['view' => 'homepage.view.php'], ['']);
         $vr = new ViewResponse($route, Config::forSite($request->site()));
 
@@ -20,21 +21,24 @@ class ViewResponseTest extends TestCase {
     }
 
     public function testCheckingNoViewDefined() {
-        $request = (new Request(['pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
         $route = new Route($request, '/', [], ['']);
         $this->expectException('Penny\ResponseException');
         $vr = new ViewResponse($route, Config::forSite($request->site()));
     }
 
     public function testNoExistingView() {
-        $request = (new Request(['pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
         $route = new Route($request, '/', ['view' => 'asdf.php'], ['']);
         $this->expectException('Penny\ResponseException');
         $vr = new ViewResponse($route, Config::forSite($request->site()));
     }
 
     public function testNoThemeDefined() {
-        $request = (new Request(['pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
         $route = new Route($request, '/', [], ['']);
         $this->expectException('Penny\ResponseException');
         $vr = new ViewResponse($route, ['folder' => 'default']);
@@ -42,7 +46,8 @@ class ViewResponseTest extends TestCase {
     }
 
     public function testNoThemeExists() {
-        $request = (new Request(['pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
         $route = new Route($request, '/', [], ['']);
         $this->expectException('Penny\ResponseException');
         $vr = new ViewResponse($route, ['folder' => 'default', 'theme' => 'asdf']);
@@ -50,7 +55,8 @@ class ViewResponseTest extends TestCase {
     }
 
     public function testResponse() {
-        $request = (new Request(['pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
         $route = new Route($request, '/', ['view' => 'homepage.view.php'], ['']);
         $vr = new ViewResponse($route, Config::forSite($request->site()));
 

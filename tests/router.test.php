@@ -11,55 +11,46 @@ class RouterTests extends TestCase {
     }
 
     public function testExceptionWhenFindingRoute() {
-        $request = (new Request(['pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
         $this->expectException('Penny\RouterException');
         $router = new Router($request);
     }
 
     public function testFindingRoute() {
-        $request = (new Request(['pennyRoute' => 'index', 'pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'index']);
         $router = new Router($request);
 
         $this->assertEquals('index', $router->route());
     }
 
     public function testFindingFormattedRoute() {
-        $request = (new Request(['pennyRoute' => 'index/', 'pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'index/']);
         $router = new Router($request);
 
         $this->assertEquals('index', $router->route());
     }
 
     public function testReplacingMultipleSlashesInRoute() {
-        $request = (new Request(['pennyRoute' => 'index////test', 'pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'index////test']);
         $router = new Router($request);
 
         $this->assertEquals('index/test', $router->route());
     }
 
     public function testGettingRouteAsArray() {
-        $request = (new Request(['pennyRoute' => 'index/test', 'pennySite' => 'defaultSite']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'index/test']);
         $router = new Router($request);
 
         $this->assertEquals(['index', 'test'], $router->routeAsArray());
     }
 
-    public function testGettingSiteRoutes() {
-        $request = (new Request(['pennySite' => 'defaultSite', 'pennyRoute' => '/']))->overrideMethod('get')->findSite();
-        $router = new Router($request);
-
-        $this->assertTrue(array_key_exists('/', $router->routesAsArray()));
-    }
-
-    public function testRequstingAPI() {
-        $request = (new Request(['pennySite' => 'defaultSite', 'pennyRoute' => '/api/say-hello/']))->overrideMethod('get')->findSite();
-        $router = new Router($request);
-
-        $this->assertEquals('api', $request->type());
-    }
-
     public function testAutoloadingApiFiles() {
-        $request = (new Request(['pennySite' => 'defaultSite', 'pennyRoute' => '/api/say-hello/']))->overrideMethod('get')->findSite();
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => '/api/say-hello/']);
         $router = new Router($request);
 
         $greeting = new Test\Greeting();

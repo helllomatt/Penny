@@ -6,7 +6,7 @@
         "/hello": {
             "action": "Test\\Greeting::say_hello"
         },
-        "/hello-person/{:name}/{:age}": {
+        "/hello-person/{name}/{age}": {
             "action": "Test\\Greeting::sayHelloToName_JSON",
             "variables": {
                 "name": {

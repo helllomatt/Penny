@@ -1,8 +1,17 @@
 {
-    "testSite": { "test": true },
+    "siteRootFolder": "tests/sites/",
+    "autoload": {
+        "Test\\": "test/"
+    },
+    "testSite": {
+        "test": true
+    },
     "defaultSite": {
         "folder": "test",
-        "theme": "test"
+        "theme": {
+            "folder": "test"
+        },
+        "domain": "localhost/test"
     },
     "apiIdentity": "api"
 }

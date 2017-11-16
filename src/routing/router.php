@@ -43,7 +43,7 @@ class Router {
         } else {
             $route = ltrim($this->request->variables()['pennyRoute'], '/');
             if (substr($route, -1) == '/') $route = substr($route, 0, -1);
-            $route = preg_replace('/\/+/', '/', $route);
+            $route = clean_slashes($route);
             $this->found_route = $route;
             $this->found_route_as_array = explode('/', $route);
 
@@ -85,10 +85,10 @@ class Router {
     public function loadSiteRoutes() {
         if (!Config::loaded()) return;
         $site_path = Config::forSite($this->request->site())['folder'];
-        if (!file_exists(REL_ROOT.'sites/'.$site_path.'/config.json')) {
+        if (!file_exists(REL_ROOT.Config::siteFolder($site_path).'/config.json')) {
             throw new RouterException('The site configuration information doesn\'t exist.');
         } else {
-            $config = file_get_contents(REL_ROOT.'sites/'.$site_path.'/config.json');
+            $config = file_get_contents(REL_ROOT.Config::siteFolder($site_path).'/config.json');
             if (!isJSON($config)) throw new RouterException('Invalid site configuration setup.');
             else {
                 $this->request_configuration = json_decode($config, true);
@@ -104,10 +104,10 @@ class Router {
      */
     public function loadApiRoutes($file = 'config.json') {
         if (!Config::loaded()) return;
-        if (!file_exists(REL_ROOT.'apis/'.$file)) {
+        if (!file_exists(REL_ROOT.Config::apiFolder().$file)) {
             throw new RouterException('The api configuration information doesn\'t exist.');
         } else {
-            $config = file_get_contents(REL_ROOT.'apis/'.$file);
+            $config = file_get_contents(REL_ROOT.Config::apiFolder().$file);
             if (!isJSON($config)) throw new RouterException('Invalid api configuration setup.');
             else {
                 $req_config = json_decode($config, true);

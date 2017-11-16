@@ -10,6 +10,7 @@ class Request {
     private $found_real_file = false;
     private $allow_real_file = true;
     private $file_path;
+    private $domain;
 
     /**
      * Invokes a request information class. Finds out everything there is to need
@@ -122,19 +123,67 @@ class Request {
     }
 
     /**
+     * Sets the domain of the current request
+     *
+     * @param string $domain
+     */
+    public function setDomain($domain = "") {
+        if ($domain == "") {
+            throw new RequestException("Domain cannot be blank.");
+        }
+
+        $this->domain = clean_slashes($domain);
+        return $this;
+    }
+
+    /**
+     * Returns the domain of the current request, assumes one if it hasn't been set
+     *
+     * @return string domain URL
+     */
+    public function getDomain() {
+        if (!$this->domain) {
+            if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REDIRECT_URL'])) {
+                $this->domain = clean_slashes($_SERVER['HTTP_HOST']."/".$_SERVER['REDIRECT_URL']."/");
+            } else {
+                throw new RequestException("Cannot assume the domain name, and none was given.");
+            }
+        }
+
+        return $this->domain;
+    }
+
+    private function potentialFile() {
+        return substr($this->found_variables['pennyRoute'], -4, 1) == ".";
+    }
+
+    /**
      * Defines the site this request is meant for.
+     *
+     * Domain: localhost/test
+     * Defined Domain: localhost/test
+     * Path: test/realfile.txt
      *
      * @return Penny\Request
      */
     public function findSite($site = '') {
         $found_site = false;
-        $domain = clean_slashes($_SERVER['HTTP_HOST']."/".$_SERVER['REDIRECT_URL']."/");
+        $domain = $this->getDomain();
 
         foreach (Config::getAll() as $site_name => $data) {
             if (!isset($data['domain'])) continue;
             if (strpos($domain, clean_slashes($data['domain'])) === 0) {
                 $this->for_site = $site_name;
-                $this->found_variables['pennyRoute'] = ltrim(str_replace($data['domain'], "", $domain), "/");
+                $cleaned_path = ltrim(str_replace($data['domain'], "", $domain), "/");
+                if ($cleaned_path == "") {
+                    if ($this->potentialFile()) {
+                        $this->found_variables['pennyRoute'] = str_replace($data['domain'], "", $this->found_variables['pennyRoute'])."/";
+                    } else {
+                        $this->found_variables['pennyRoute'] = "/";
+                    }
+                } else {
+                    $this->found_variables['pennyRoute'] = $cleaned_path;
+                }
                 return $this;
             }
         }
@@ -176,7 +225,7 @@ class Request {
             $site_folder = $config['folder'];
             if (isset($config['asset-folder'])) $asset_folder = $config['asset-folder'];
             else $asset_folder = '';
-            $path = REL_ROOT.'sites/'.$site_folder.'/'.$asset_folder.$this->found_variables['pennyRoute'];
+            $path = REL_ROOT.Config::siteFolder($config['folder']).'/'.$this->found_variables['pennyRoute'];
         }
 
         if (file_exists($path) && !is_dir($path)) {

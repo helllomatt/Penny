@@ -91,6 +91,39 @@ class Config {
     }
 
     /**
+     * Returns the path to the site root folder (where all the sites are)
+     *
+     * @param  string $site
+     * @return string
+     */
+    public static function siteFolder($site = '') {
+        if (!static::$configuration) {
+            throw new ConfigException("Configuration not loaded.");
+        } elseif ($site == "") {
+            throw new ConfigException("Site folder not provided.");
+        } elseif (!isset(static::$configuration['siteRootFolder'])) {
+            return "sites/".$site;
+        } else {
+            return static::$configuration['siteRootFolder']."/".$site;
+        }
+    }
+
+    /**
+     * Returns the API folder
+     *
+     * @return string
+     */
+    public static function apiFolder() {
+        if (!static::$configuration) {
+            throw new ConfigException("Configuration not loaded.");
+        } elseif (!isset(static::$configuration['apiRootFolder'])) {
+            return "apis/";
+        } else {
+            return static::$configuration['apiRootFolder']."/";
+        }
+    }
+
+    /**
      * Returns all of the configuration data
      *
      * @return array

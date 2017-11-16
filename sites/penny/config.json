@@ -19,7 +19,7 @@
                 "title": "Home"
             }
         },
-        "/data/{:name}": {
+        "/data/{name}": {
             "view": "data-processing.view.php",
             "vars": {
                 "title": "Data"
