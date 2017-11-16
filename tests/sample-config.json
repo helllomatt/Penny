@@ -1,5 +1,7 @@
 {
     "siteRootFolder": "tests/sites/",
+    "apiRootFolder": "api/",
+    "themeRootFolder": "tests/themes/",
     "autoload": {
         "Test\\": "test/"
     },

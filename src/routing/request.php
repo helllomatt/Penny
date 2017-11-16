@@ -215,7 +215,7 @@ class Request {
 
         if ($from == 'theme') {
             $theme_folder = Config::forSite($this->for_site)['theme']['folder'];
-            $path = REL_ROOT.'themes/'.$theme_folder.'/'.$this->found_variables['pennyRoute'];
+            $path = REL_ROOT.Config::themeFolder().$theme_folder.'/'.$this->found_variables['pennyRoute'];
         } elseif ($from == 'global') {
             $global_folder = Config::get("globalFolder");
             $path = REL_ROOT.$global_folder."/".$this->found_variables['pennyRoute'];

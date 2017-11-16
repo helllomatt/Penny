@@ -53,7 +53,7 @@ class ViewResponse {
         if (!isset($this->route->data()['theme'])) $theme_file = 'index.php';
         else $theme_file = $this->route->data()['theme'];
 
-        $file = REL_ROOT.'themes/'.$this->config['theme']['folder'].'/'.$theme_file;
+        $file = REL_ROOT.Config::themeFolder().$this->config['theme']['folder'].'/'.$theme_file;
         if (!file_exists($file)) {
             throw new ResponseException('Theme doesn\'t exist.');
         }
@@ -71,7 +71,7 @@ class ViewResponse {
             throw new ResponseException('Theme not defined in the config.');
         }
 
-        $file = REL_ROOT.'themes/'.$this->config['theme']['folder'].'/error.php';
+        $file = REL_ROOT.Config::themeFolder().$this->config['theme']['folder'].'/error.php';
         if (!file_exists($file)) {
             throw new ResponseException('Theme error page doesn\'t exist.');
         }
@@ -129,7 +129,7 @@ class ViewResponse {
      * @return void
      */
     public function includeThemeFile($file) {
-        $file = REL_ROOT.'themes/'.$this->config['theme']['folder'].'/'.$file;
+        $file = REL_ROOT.Config::themeFolder().$this->config['theme']['folder'].'/'.$file;
         if (!file_exists($file)) {
             throw new ResponseException('Theme file doesn\'t exist.');
         }

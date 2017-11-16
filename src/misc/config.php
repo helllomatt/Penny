@@ -124,6 +124,21 @@ class Config {
     }
 
     /**
+     * Returns the theme folder
+     *
+     * @return string
+     */
+    public static function themeFolder() {
+        if (!static::$configuration) {
+            throw new ConfigException("Configuration not loaded.");
+        } elseif (!isset(static::$configuration['themeRootFolder'])) {
+            return "themes/";
+        } else {
+            return static::$configuration['themeRootFolder']."/";
+        }
+    }
+
+    /**
      * Returns all of the configuration data
      *
      * @return array
