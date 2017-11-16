@@ -1,0 +1,100 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "4ecee8e371a65e6bfc27314c4e3c0810",
+    "packages": [
+        {
+            "name": "helllomatt/basically",
+            "version": "0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/helllomatt/Basically.git",
+                "reference": "5a1a9b74634dc4d3650704cd355de0429f3c3e97"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/helllomatt/Basically/zipball/5a1a9b74634dc4d3650704cd355de0429f3c3e97",
+                "reference": "5a1a9b74634dc4d3650704cd355de0429f3c3e97",
+                "shasum": ""
+            },
+            "require": {
+                "helllomatt/double": "^1.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Basically\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Barebones CRUD class.",
+            "keywords": [
+                "Forms",
+                "crud",
+                "sanitization",
+                "validation"
+            ],
+            "time": "2017-02-16T06:04:47+00:00"
+        },
+        {
+            "name": "helllomatt/double",
+            "version": "1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/helllomatt/Double.git",
+                "reference": "2dc0bdb16f328afe6e02ce77de10009bed478597"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/helllomatt/Double/zipball/2dc0bdb16f328afe6e02ce77de10009bed478597",
+                "reference": "2dc0bdb16f328afe6e02ce77de10009bed478597",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Double\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "helllomatt",
+                    "email": "me@helllomatt.com",
+                    "homepage": "http://helllomatt.com"
+                }
+            ],
+            "description": "Basic MySql database library",
+            "keywords": [
+                "database",
+                "db",
+                "library",
+                "mysql"
+            ],
+            "time": "2017-02-09T06:55:00+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

@@ -1,0 +1,10 @@
+{
+    "penny": {
+        "folder": "penny",
+        "theme": {
+            "folder": "penny"
+        },
+        "domain": "localhost/projects/penny/p"
+    },
+    "apiIdentity": "megan"
+}

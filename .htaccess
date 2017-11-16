@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule ^(.*)$ sites/penny/index.php?pennyRoute=$1 [QSA,L]

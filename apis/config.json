@@ -1,0 +1,26 @@
+{
+    "autoload": {
+        "Test\\": "test/"
+    },
+    "routes": {
+        "/hello": {
+            "action": "Test\\Greeting::say_hello"
+        },
+        "/hello-person/{:name}/{:age}": {
+            "action": "Test\\Greeting::sayHelloToName_JSON",
+            "variables": {
+                "name": {
+                    "required": true
+                },
+                "age": {}
+            }
+        },
+        "say_hello": {
+            "action": "Test\\Greeting::sayHelloToName_ECHO",
+            "cli-options": {
+                "name": "required",
+                "age": "optional"
+            }
+        }
+    }
+}

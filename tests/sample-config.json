@@ -1,0 +1,8 @@
+{
+    "testSite": { "test": true },
+    "defaultSite": {
+        "folder": "test",
+        "theme": "test"
+    },
+    "apiIdentity": "api"
+}

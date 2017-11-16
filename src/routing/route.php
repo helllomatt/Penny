@@ -1,0 +1,220 @@
+<?php
+
+namespace Penny;
+
+use Basically\Crud;
+use Basically\Errors;
+
+class Route {
+    private $request;
+    private $route_string;
+    private $route_data = [];
+    private $uri_route;
+    private $found_variables = [];
+    private $load_file;
+    private $using_view_file = true;
+
+    public function __construct($request, $route_string, $data, $uri_route) {
+        $this->request = $request;
+        if (substr($route_string, 0, 1) == '/') $route_string = ltrim($route_string, '/');
+        if (substr($route_string, -1) == '/') $route_string = substr($route_string, 0, -1);
+        $this->route_string = preg_replace('/\/+/', '/', $route_string);
+        $this->route_data = $data;
+        $this->uri_route = $uri_route;
+        return $this;
+    }
+
+    /**
+     * Returns the path as a string
+     *
+     * @return string
+     */
+    public function toString() {
+        return $this->route_string;
+    }
+
+    /**
+     * Returns the data related to the route
+     *
+     * @return array
+     */
+    public function data() {
+        return $this->route_data;
+    }
+
+    /**
+     * Returns the variables found in the URI
+     *
+     * @return array
+     */
+    public function variables() {
+        return $this->found_variables;
+    }
+
+    /**
+     * Checks this route's route vs the route from the URI
+     *
+     * @return bool
+     */
+    public function matches() {
+        if ($this->request->method() === 'cli') return $this->matchCli();
+        else return $this->matchView();
+    }
+
+    /**
+     * Checks to see if the config method matches the request method
+     *
+     * @return bool
+     */
+    private function checkMethod() {
+        if (isset($this->route_data['method'])) {
+            return strtolower($this->route_data['method']) == $this->request->method();
+        }
+        return true;
+    }
+
+    /**
+     * Matches when an HTTP request is made
+     *
+     * @return bool
+     */
+    private function matchView() {
+        if (!$this->checkMethod()) return false;
+
+        $route = explode('/', $this->route_string);
+        $expected_length = count($this->uri_route);
+        $total_length = count($route);
+
+        if ($total_length < $expected_length) return false;
+
+        for ($i = 0; $i < $total_length; $i++) {
+            if ($route[$i] == '*') continue;
+
+            if (substr($route[$i], 0, 1) === '{' && substr($route[$i], -1) === '}') {
+                if (!isset($this->uri_route[$i])) continue;
+                $this->found_variables[str_replace(['{:', '}'], "", $route[$i])] = $this->uri_route[$i];
+                continue;
+            }
+
+            if (!isset($this->uri_route[$i])) return false;
+            if ($route[$i] !== $this->uri_route[$i]) return false;
+        }
+
+        $this->validateVariables();
+
+        if (isset($this->route_data['vars'])) $this->request->addVariables($this->route_data['vars']);
+        if (isset($this->route_data['file'])) {
+            $this->load_file = REL_ROOT.'sites/'.$this->request->site().'/'.$this->route_data['file'];
+            if (!file_exists($this->load_file)) return false;
+            $this->using_view_file = false;
+        }
+        return true;
+    }
+
+    /**
+     * Finds all of the variables requested by the route and validates them
+     *
+     * @return void
+     */
+    private function validateVariables() {
+        if (!isset($this->route_data['variables'])) return;
+
+        $req_vars = $this->found_variables;
+        foreach ($this->route_data['variables'] as $key => $val) {
+            $required = !isset($val['required']) ? false : $val['required'];
+            $errors = !isset($val['errors']) ? [] : $val['errors'];
+            $match = !isset($val['match']) ? [] : $val['match'];
+
+            if (!isset($req_vars[$key]) && $required) {
+                if (isset($errors['missing'])) {
+                    if (is_array($errors['missing'])) {
+                        if (isset($errors['missing']['code'])) {
+                            throw new ResponseException($errors['missing']['message'], $errors['missing']['code']);
+                        } else {
+                            throw new ResponseException($errors['missing']['message']);
+                        }
+                    } else throw new ResponseException($errors['missing']);
+                }
+                else throw new ResponseException('Missing variable "'.$key.'".', 0);
+            } elseif (isset($req_vars[$key])) {
+                $custom_errors = $this->buildCustomErrors($errors);
+                if (isset($match['values'])) $match = array_merge($match['values'], $match);
+                unset($match['values']);
+                $this->found_variables[$key] = CRUD::sanitize($req_vars[$key], $match, $custom_errors);
+            } elseif (!$required) $this->found_variables[$key] = null;
+        }
+    }
+
+    /**
+     * Builds custom errors for API route variables
+     *
+     * @param  array $errors
+     * @return Basically\Errors;
+     */
+    private function buildCustomErrors($errors) {
+        $index = [
+            'missing'     => 'setWhenMissingRequired',
+            'notstring'   => 'setWhenNotString',
+            'tooshort'    => 'setWhenShortString',
+            'toolong'     => 'setWhenLongString',
+            'mismatch'    => 'setWhenStringMatch',
+            'bademail'    => 'setWhenBadEmail',
+            'notnumber'   => 'setWhenNotNumber',
+            'baddate'     => 'setWhenBadDate',
+            'badname'     => 'setWhenBadName',
+            'notbool'     => 'setWhenNotBoolean' ];
+
+        $custom = new Errors();
+        foreach ($errors as $error => $data) {
+            $function = $index[$error];
+            if (is_array($data)) {
+                if (!isset($data['code'])) {
+                    $custom->$function($data['message']);
+                } else {
+                    $custom->$function($data['message'], $data['code']);
+                }
+            } else {
+                $custom->$function($data);
+            }
+        }
+
+        return $custom;
+    }
+
+    /**
+     * Matches when a CLI request is made
+     *
+     * @return bool
+     */
+    private function matchCli() {
+        $command = $this->route_string;
+        return $command === $this->uri_route[0];
+    }
+
+    /**
+     * Returns the variables related to the request
+     *
+     * @return array
+     */
+    public function requestVars() {
+        return $this->request->variables();
+    }
+
+    /**
+     * Returns the value if the route is for a real file
+     *
+     * @return bool
+     */
+    public function forFile() {
+        return !$this->using_view_file;
+    }
+
+    /**
+     * Returns the value of the routes real file path
+     *
+     * @return string
+     */
+    public function file() {
+        return $this->load_file;
+    }
+}

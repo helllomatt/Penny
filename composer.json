@@ -1,0 +1,20 @@
+{
+    "name": "helllomatt/penny",
+    "description": "Framework, API, CMS",
+    "type": "framework",
+    "authors": [
+        {
+            "name": "helllomatt",
+            "email": "helllomatt@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Penny\\": "src/"
+        },
+        "files": ["src/misc/misc.functions.php"]
+    },
+    "require": {
+        "helllomatt/basically": "^0.3.0"
+    }
+}
