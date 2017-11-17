@@ -23,7 +23,7 @@ function isJSON($string) {
  * @return none
  */
 function autoload($prefix, $base_dir) {
-    $base_dir = REL_ROOT.Config::apiFolder().$base_dir;
+    $base_dir = clean_slashes(REL_ROOT.Config::apiFolder().$base_dir);
     spl_autoload_register(function ($class) use ($prefix, $base_dir) {
         $len = strlen($prefix);
         if (strncmp($prefix, $class, $len) !== 0) return;
@@ -32,7 +32,7 @@ function autoload($prefix, $base_dir) {
 
         foreach ($files as $file) {
             if (FileSystem::getExtension($file) !== 'php') continue;
-            if (FileSystem::findNamespace($base_dir.'/'.$file).'\\' == $prefix) {
+            if (trim(FileSystem::findNamespace($base_dir.'/'.$file)).'\\' == $prefix) {
                 require_once $base_dir.'/'.$file;
             }
         }

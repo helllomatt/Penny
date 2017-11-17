@@ -38,20 +38,14 @@ try {
     }
 } catch (ConfigException $e) {
     print_r('CONFIG EXCEPTION: '.$e->getMessage());
-    print_r($e->getTrace());
 } catch (CliOptException $e) {
     print_r($e->getMessage());
-    //print_r($e->getTrace());
 } catch (RequestException $e) {
     print_r('REQUEST EXCEPTION: '.$e->getMessage());
-    print_r($e->getTrace());
 } catch (RouterException $e) {
     print_r('ROUTER EXCEPTION: '.$e->getMessage());
-    print_r($e->getTrace());
 } catch (ResponseException $e) {
     print_r('RESPONSE EXCEPTION: '.$e->getMessage());
-    print_r($e->getTrace());
 } catch (Exception $e) {
     print_r('DEFAULT EXCEPTION: '.$e->getMessage());
-    print_r($e->getTrace());
 }
