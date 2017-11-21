@@ -108,7 +108,36 @@ class Route {
             if (!file_exists($this->load_file)) return false;
             $this->using_view_file = false;
         }
+
+        if (isset($this->route_data['middleware_action'])) {
+            $action = $this->middlewareActionExists($this->route_data['middleware_action']);
+            if (!$action) return false;
+
+            return call_user_func_array([$action[0], $action[1]], []);
+        }
+
         return true;
+    }
+
+    /**
+     * Validates that the middleware action specified exists
+     *
+     * @return bool
+     */
+    public function middlewareActionExists($action) {
+        $action_data = explode('::', $action);
+        $class = $action_data[0];
+        $method = $action_data[1];
+
+        if (!class_exists($class)) {
+            throw new ResponseException('Middleware class hasn\'t been loaded, or doesn\'t exist.');
+        }
+
+        if (!method_exists($class, $method)) {
+            throw new ResponseException('Middleware method doesn\'t exist');
+        }
+
+        return [$class, $method];
     }
 
     /**

@@ -23,7 +23,7 @@ function isJSON($string) {
  * @return none
  */
 function autoload($prefix, $base_dir) {
-    $base_dir = clean_slashes(REL_ROOT.Config::apiFolder().$base_dir);
+    $base_dir = clean_slashes($base_dir);
     spl_autoload_register(function ($class) use ($prefix, $base_dir) {
         $len = strlen($prefix);
         if (strncmp($prefix, $class, $len) !== 0) return;
@@ -52,4 +52,9 @@ function autoload($prefix, $base_dir) {
  */
 function clean_slashes($url) {
     return preg_replace('/\/+/', '/', $url);
+}
+
+
+function pre($array) {
+    echo "<pre>".print_r($array, true)."</pre>";
 }

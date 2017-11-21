@@ -96,10 +96,30 @@ class Router {
                 $this->request_routes = $this->request_configuration['routes'];
 
                 if (isset($req_config['autoload'])) {
-                    $this->autoload_files = array_merge($this->autoload_files, $req_config['autoload']);
+                    $this->get_autoload_files($req_config['autoload'], Config::apiFolder());
+                }
+
+                if (isset($req_config['middleware'])) {
+                    $this->get_autoload_files($req_config['middleware'], Config::siteFolder($site_path));
                 }
             }
         }
+    }
+
+    /**
+     * Adds files to be loaded automatically PSR-4
+     *
+     * @param  array  $al_array
+     * @param  string  $folder
+     * @return null
+     */
+    private function get_autoload_files($al_array, $folder) {
+        $af = [];
+        foreach ($al_array as $namespace => $path) {
+            $af[$namespace] = REL_ROOT.$folder."/".$path;
+        }
+
+        $this->autoload_files = array_merge($this->autoload_files, $af);
     }
 
     /**
@@ -119,8 +139,13 @@ class Router {
                 $this->request_configuration = $req_config;
                 $this->addConfigVariables();
                 if (isset($req_config['autoload'])) {
-                    $this->autoload_files = array_merge($this->autoload_files, $req_config['autoload']);
+                    $this->get_autoload_files($req_config['autoload'], Config::apiFolder());
                 }
+
+                if (isset($req_config['middleware'])) {
+                    $this->get_autoload_files($req_config['middleware'], Config::siteFolder($site_path));
+                }
+                
                 $this->request_routes = array_merge($this->request_routes, $req_config['routes']);
 
                 if (isset($req_config['forwards'])) {
@@ -203,6 +228,7 @@ class Router {
      */
     public function getMatch() {
         foreach ($this->request_routes_as_routes as $route) {
+            $this->autoloadFiles();
             if ($route->matches()) {
                 if (isset($this->request_configuration['routes']['/'.$route->toString()])) {
                     $route_config = $this->request_configuration['routes']['/'.$route->toString()];
@@ -211,7 +237,7 @@ class Router {
                 } else $route_config = [];
 
                 if (isset($route_config['autoload'])) {
-                    $this->autoload_files = array_merge($this->autoload_files, $route_config['autoload']);
+                    $this->autoload_files = $route_config['autoload'];
                 }
 
                 $this->request->addVariables($route->variables());
