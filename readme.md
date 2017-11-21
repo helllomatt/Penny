@@ -319,3 +319,44 @@ class Greeting {
 </html>
 
 ```
+
+## Middleware
+You can run functions that determine whether or not the request should be completed. In the run time, the request is made, the routes are loaded, the middleware runs, then the request runs.
+
+__If the middleware action returns `TRUE` the request will go ahead. If it returns `FALSE` the user will see a 404__
+
+### API Middleware
+Firstly, define the classes to autoload, so that we can run the static functions from them.
+
+```
+"autoload": {
+    "MW_Namespace\\": "middleware/"
+}
+```
+
+This will autoload any file with the namespace of `MW_Namespace` inside of the `apis/middleware/` folder. Now you can use those classes, but you need to call the action on a route-by-route basis.
+
+```
+"routes": {
+    "/": {
+        "middleware_action": "MW_Namespace\\MyClass::validate_something"
+        ...
+    }
+}
+```
+
+This will automatically run the static function `validate_something` from the `MyClass` class.
+
+### Site Middleware
+This is very similar to the API middleware, but there can be one difference. If you define your middleware namespaces in the `autoload` config key, it will load from your APIs folder. So we will introduce the same thing, except called `middleware`, to the config. That will load everything from the root of your site folder.
+
+```
+"autoload": {...},
+"middleware": {
+    "MW_Namespace\\": "middleware"
+}
+```
+
+Now we're looking for the `MW_Namespace` inside of the `sites/yoursite/middleware` folder, instead of the `apis/middleware` folder.
+
+The actions are called and behave the same way.
