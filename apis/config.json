@@ -1,6 +1,6 @@
 {
     "autoload": {
-        "PennyCLI\\": "/"
+        "PennyCLI\\": "./"
     },
     "routes": {
         "init": {
