@@ -91,8 +91,13 @@ class Router {
             $config = file_get_contents(REL_ROOT.Config::siteFolder($site_path).'/config.json');
             if (!isJSON($config)) throw new RouterException('Invalid site configuration setup.');
             else {
-                $this->request_configuration = json_decode($config, true);
+                $req_config = json_decode($config, true);
+                $this->request_configuration = $req_config;
                 $this->request_routes = $this->request_configuration['routes'];
+
+                if (isset($req_config['autoload'])) {
+                    $this->autoload_files = array_merge($this->autoload_files, $req_config['autoload']);
+                }
             }
         }
     }

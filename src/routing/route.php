@@ -119,7 +119,7 @@ class Route {
     private function validateVariables() {
         if (!isset($this->route_data['variables'])) return;
 
-        $req_vars = $this->found_variables;
+        $req_vars = array_merge($this->found_variables, $this->request->variables());
         foreach ($this->route_data['variables'] as $key => $val) {
             $required = !isset($val['required']) ? false : $val['required'];
             $errors = !isset($val['errors']) ? [] : $val['errors'];
