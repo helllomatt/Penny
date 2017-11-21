@@ -58,6 +58,7 @@ class Route {
      */
     public function matches() {
         if ($this->request->method() === 'cli') return $this->matchCli();
+        else if ($this->request->method() !== 'cli' && isset($this->route_data['cli'])) return false;
         else return $this->matchView();
     }
 

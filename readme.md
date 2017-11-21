@@ -8,6 +8,7 @@ $ git clone https://git.helllomatt.com/matt/penny-quickstart.git
     [cloning]
 $ cd penny-quickstart
 $ composer install
+$ composer dump-autoload -o
 ```
 
 ### Initializing Penny
