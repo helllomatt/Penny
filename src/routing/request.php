@@ -143,8 +143,8 @@ class Request {
      */
     public function getDomain() {
         if (!$this->domain) {
-            if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REDIRECT_URL'])) {
-                $this->domain = clean_slashes($_SERVER['HTTP_HOST']."/".$_SERVER['REDIRECT_URL']."/");
+            if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI'])) {
+                $this->domain = clean_slashes($_SERVER['HTTP_HOST']."/".$_SERVER['REQUEST_URI']."/");
             } else {
                 throw new RequestException("Cannot assume the domain name, and none was given.");
             }
