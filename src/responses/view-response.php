@@ -134,6 +134,8 @@ class ViewResponse {
             throw new ResponseException('Theme file doesn\'t exist.');
         }
 
+        $view = $this;
+        $route = $this->route;
         include $file;
     }
 
