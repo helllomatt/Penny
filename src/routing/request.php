@@ -218,12 +218,16 @@ class Request {
         $this->found_variables['pennyRoute'] = rtrim(implode('/', $route), "/");
         $path = null;
 
+        $global_paths = [];
+        foreach (Config::get("globalFolder") as $folder) {
+            $global_paths[] = REL_ROOT.$folder."/".$this->found_variables['pennyRoute'];
+        }
+
         if ($from == 'theme') {
             $theme_folder = Config::forSite($this->for_site)['theme']['folder'];
             $path = REL_ROOT.Config::themeFolder().$theme_folder.'/'.$this->found_variables['pennyRoute'];
-        } elseif ($from == 'global' || $this->fileType($this->found_variables['pennyRoute']) !== false) {
+        } elseif ($from == 'global' || (($path = $this->file_in_array_exists($global_paths)) !== false)) {
             $global_folder = Config::get("globalFolder");
-            $path = REL_ROOT.$global_folder."/".$this->found_variables['pennyRoute'];
         } elseif ($this->for_site != null) {
             $config = Config::forSite($this->for_site);
             $site_folder = $config['folder'];
@@ -245,6 +249,13 @@ class Request {
         }
 
         if ($return_only) return false;
+    }
+
+    public function file_in_array_exists($array) {
+        foreach ($array as $file) {
+            if ($this->fileType($file) !== false && file_exists($file)) return $file;
+        }
+        return false;
     }
 
     /**
