@@ -185,7 +185,9 @@ class Request {
         }
 
         if (!$found_site) {
-            throw new RequestException("Failed to find what site you're looking for.");
+            if (!$this->checkRealFile(true)) {
+                throw new RequestException("Failed to find what site you're looking for.");
+            } else $this->checkRealFile();
         }
     }
 
@@ -216,7 +218,7 @@ class Request {
         if ($from == 'theme') {
             $theme_folder = Config::forSite($this->for_site)['theme']['folder'];
             $path = REL_ROOT.Config::themeFolder().$theme_folder.'/'.$this->found_variables['pennyRoute'];
-        } elseif ($from == 'global') {
+        } elseif ($from == 'global' || $this->fileType($route[0]) !== false) {
             $global_folder = Config::get("globalFolder");
             $path = REL_ROOT.$global_folder."/".$this->found_variables['pennyRoute'];
         } else {
@@ -269,11 +271,13 @@ class Request {
         return $this->file_path;
     }
 
-    public function fileType() {
-        $extension = pathinfo($this->file_path, PATHINFO_EXTENSION);
+    public function fileType($given = null) {
+        $path = !$given ? $this->file_path : $given;
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
         switch ($extension) {
             case "css": return "text/css";
-            default: mime_content_type($this->file_path);
+            case "js": return "text/javascript";
+            default: return @mime_content_type($path);
         }
     }
 }
