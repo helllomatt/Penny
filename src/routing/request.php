@@ -166,28 +166,30 @@ class Request {
         $found_site = false;
         $domain = $this->getDomain();
 
-        foreach (Config::getAll() as $site_name => $data) {
-            if (!isset($data['domain'])) continue;
-            if (strpos($domain, clean_slashes($data['domain'])) === 0) {
-                $this->for_site = $site_name;
-                $cleaned_path = ltrim(str_replace($data['domain'], "", $domain), "/");
-                if ($cleaned_path == "") {
-                    if ($this->checkRealFile(true)) {
-                        $this->found_variables['pennyRoute'] = str_replace($data['domain'], "", $this->found_variables['pennyRoute'])."/";
+        if (strpos($this->found_variables['pennyRoute'], Config::get("apiIdentity")) === false) {
+            foreach (Config::getAll() as $site_name => $data) {
+                if (!isset($data['domain'])) continue;
+                if (strpos($domain, clean_slashes($data['domain'])) === 0) {
+                    $this->for_site = $site_name;
+                    $cleaned_path = ltrim(str_replace($data['domain'], "", $domain), "/");
+                    if ($cleaned_path == "") {
+                        if ($this->checkRealFile(true)) {
+                            $this->found_variables['pennyRoute'] = str_replace($data['domain'], "", $this->found_variables['pennyRoute'])."/";
+                        } else {
+                            $this->found_variables['pennyRoute'] = "/";
+                        }
                     } else {
-                        $this->found_variables['pennyRoute'] = "/";
+                        $this->found_variables['pennyRoute'] = $cleaned_path;
                     }
-                } else {
-                    $this->found_variables['pennyRoute'] = $cleaned_path;
+                    return $this;
                 }
-                return $this;
             }
-        }
 
-        if (!$found_site) {
-            if (!$this->checkRealFile(true)) {
-                throw new RequestException("Failed to find what site you're looking for.");
-            } else $this->checkRealFile();
+            if (!$found_site) {
+                if (!$this->checkRealFile(true)) {
+                    throw new RequestException("Failed to find what site you're looking for.");
+                } else $this->checkRealFile();
+            }
         }
     }
 
@@ -214,6 +216,7 @@ class Request {
         $from = $route[0];
         if (in_array($from, ['theme', 'global'])) array_shift($route);
         $this->found_variables['pennyRoute'] = rtrim(implode('/', $route), "/");
+        $path = null;
 
         if ($from == 'theme') {
             $theme_folder = Config::forSite($this->for_site)['theme']['folder'];
@@ -221,7 +224,7 @@ class Request {
         } elseif ($from == 'global' || $this->fileType($this->found_variables['pennyRoute']) !== false) {
             $global_folder = Config::get("globalFolder");
             $path = REL_ROOT.$global_folder."/".$this->found_variables['pennyRoute'];
-        } else {
+        } elseif ($this->for_site != null) {
             $config = Config::forSite($this->for_site);
             $site_folder = $config['folder'];
             if (isset($config['asset-folder'])) $asset_folder = $config['asset-folder'];
