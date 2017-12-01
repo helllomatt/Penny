@@ -100,7 +100,6 @@ class Request {
         $this->found_variables = array_merge(
             filter_input_array(INPUT_GET) ?: [],
             filter_input_array(INPUT_POST) ?: []);
-        // echo "<pre>".print_r($this->found_variables, true)."</pre>";
         return $this;
     }
 
@@ -144,7 +143,8 @@ class Request {
     public function getDomain() {
         if (!$this->domain) {
             if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI'])) {
-                $this->domain = clean_slashes($_SERVER['HTTP_HOST']."/".$_SERVER['REQUEST_URI']."/");
+                $uri = explode("?", $_SERVER['REQUEST_URI'])[0];
+                $this->domain = clean_slashes($_SERVER['HTTP_HOST']."/".$uri."/");
             } else {
                 throw new RequestException("Cannot assume the domain name, and none was given.");
             }
