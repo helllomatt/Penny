@@ -113,6 +113,13 @@ class ViewResponse {
         include $this->view;
     }
 
+    public function includeSiteFile($file) {
+        $view = $this;
+        $route = $this->route;
+        $path = REL_ROOT.Config::siteFolder($this->config['folder'])."/".$file;
+        if (file_exists($path)) include $path;
+    }
+
     /**
      * Gets a request variable
      *
