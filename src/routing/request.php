@@ -166,7 +166,7 @@ class Request {
         $found_site = false;
         $domain = $this->getDomain();
 
-        if (strpos($this->found_variables['pennyRoute'], Config::get("apiIdentity")) === false) {
+        if (strpos($this->found_variables['pennyRoute'], Config::get("apiIdentity", true)) === false) {
             foreach (Config::getAll() as $site_name => $data) {
                 if (!isset($data['domain'])) continue;
                 if (strpos($domain, clean_slashes($data['domain'])) === 0) {
@@ -219,8 +219,13 @@ class Request {
         $path = null;
 
         $global_paths = [];
-        foreach (Config::get("globalFolder") as $folder) {
-            $global_paths[] = REL_ROOT.$folder."/".$this->found_variables['pennyRoute'];
+        $global_folder = Config::get("globalFolder", true);
+        if (is_array($global_folder)) {
+            foreach ($global_folder as $folder) {
+                $global_paths[] = REL_ROOT.$folder."/".$this->found_variables['pennyRoute'];
+            }
+        } elseif ($global_folder != null) {
+            $global_paths[] = REL_ROOT.$global_folder."/".$this->found_variables['pennyRoute'];
         }
 
         if ($from == 'theme') {
