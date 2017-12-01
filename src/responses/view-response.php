@@ -33,7 +33,9 @@ class ViewResponse {
 
         $file = REL_ROOT.Config::siteFolder($this->site_folder).'/'.$this->route->data()['view'];
         if (!file_exists($file)) {
-            throw new ResponseException('The view file specified doesn\'t exist.');
+            $this->getErrorTheme();
+            $this->error(404);
+            // throw new ResponseException('The view file specified doesn\'t exist.');
         } else {
             $this->view = $file;
             return true;
@@ -118,6 +120,7 @@ class ViewResponse {
      * @return any
      */
     public function variable($key) {
+        if (!$this->route) return null;
         if (isset($this->route->requestVars()[$key])) return $this->route->requestVars()[$key];
         return null;
     }
