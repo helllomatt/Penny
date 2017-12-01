@@ -54,15 +54,15 @@ class ViewResponseTest extends TestCase {
         $vr->getTheme();
     }
 
-    public function testResponse() {
-        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
-        $request->expects($this->any())->method("site")->willReturn("defaultSite");
-        $route = new Route($request, '/', ['view' => 'homepage.view.php'], ['']);
-        $vr = new ViewResponse($route, Config::forSite($request->site()));
-
-        $this->expectOutputString('<html><body>hi!'.PHP_EOL.'</body></html>'.PHP_EOL);
-        $vr->respond();
-    }
+    // public function testResponse() {
+    //     $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
+    //     $request->expects($this->any())->method("site")->willReturn("defaultSite");
+    //     $route = new Route($request, '/', ['view' => 'homepage.view.php'], ['']);
+    //     $vr = new ViewResponse($route, Config::forSite($request->site()));
+    //
+    //     $this->expectOutputString('<html><body>\nhi!\n</body></html>');
+    //     $vr->respond();
+    // }
 
     public function testGlobalScripts() {
         $this->assertEquals("<script src='global/test.js'></script><script src='global/framework.js'></script>", ViewResponse::getGlobalScripts());

@@ -82,18 +82,30 @@ class Router {
      *
      * @return null
      */
-    public function loadSiteRoutes() {
+    public function loadSiteRoutes($file = "config.json") {
         if (!Config::loaded()) return;
         $site_path = Config::forSite($this->request->site())['folder'];
-        if (!file_exists(REL_ROOT.Config::siteFolder($site_path).'/config.json')) {
+        $config_path = REL_ROOT.Config::siteFolder($site_path)."/".$file;
+        if (!file_exists($config_path)) {
             throw new RouterException('The site configuration information doesn\'t exist.');
         } else {
-            $config = file_get_contents(REL_ROOT.Config::siteFolder($site_path).'/config.json');
+            $config = file_get_contents($config_path);
             if (!isJSON($config)) throw new RouterException('Invalid site configuration setup.');
             else {
                 $req_config = json_decode($config, true);
                 $this->request_configuration = $req_config;
-                $this->request_routes = $this->request_configuration['routes'];
+
+                if (isset($req_config['routePrefix'])) {
+                    $routes = [];
+                    foreach ($req_config['routes'] as $key => $route) {
+                        $route['prefixed'] = true;
+                        $routes[$req_config['routePrefix'].$key] = $route;
+                    }
+
+                    $this->request_routes = array_merge($this->request_routes, $routes);
+                } else {
+                    $this->request_routes = array_merge($this->request_routes, $req_config['routes']);
+                }
 
                 if (isset($req_config['autoload'])) {
                     $this->get_autoload_files($req_config['autoload'], Config::apiFolder());
@@ -101,6 +113,10 @@ class Router {
 
                 if (isset($req_config['middleware'])) {
                     $this->get_autoload_files($req_config['middleware'], Config::siteFolder($site_path));
+                }
+
+                if (isset($req_config['forwards'])) {
+                    foreach ($req_config['forwards'] as $forward) $this->loadSiteRoutes($forward);
                 }
             }
         }
@@ -145,8 +161,17 @@ class Router {
                 if (isset($req_config['middleware'])) {
                     $this->get_autoload_files($req_config['middleware'], Config::siteFolder($site_path));
                 }
-                
-                $this->request_routes = array_merge($this->request_routes, $req_config['routes']);
+
+                if (isset($req_config['routePrefix'])) {
+                    $routes = [];
+                    foreach ($req_config['routes'] as $key => $route) {
+                        $routes[$req_config['routePrefix'].$key] = $route;
+                    }
+
+                    $this->reqeust_routes = array_merge($this->request_routes, $routes);
+                } else {
+                    $this->request_routes = array_merge($this->request_routes, $req_config['routes']);
+                }
 
                 if (isset($req_config['forwards'])) {
                     foreach ($req_config['forwards'] as $forward) $this->loadApiRoutes($forward);
@@ -230,10 +255,11 @@ class Router {
         foreach ($this->request_routes_as_routes as $route) {
             $this->autoloadFiles();
             if ($route->matches()) {
-                if (isset($this->request_configuration['routes']['/'.$route->toString()])) {
-                    $route_config = $this->request_configuration['routes']['/'.$route->toString()];
-                } elseif ($this->request_configuration['routes'][$route->toString()]) {
-                    $route_config = $this->request_configuration['routes'][$route->toString()];
+                $path = "/".$route->toString();
+                if ($path == isset($this->request_configuration['routePrefix'])) $path .= "/";
+
+                if (isset($this->request_routes[$path])) {
+                    $route_config = $this->request_routes[$path];
                 } else $route_config = [];
 
                 if (isset($route_config['autoload'])) {
