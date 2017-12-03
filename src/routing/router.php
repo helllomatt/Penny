@@ -17,6 +17,7 @@ class Router {
     public function __construct($request) {
         $this->request = $request;
         $this->findRouteQuery();
+
         if ($this->request->type() == 'view') $this->loadSiteRoutes();
         elseif ($this->request->type() == 'api' || $this->request->method() === 'cli') {
             $this->loadApiRoutes();

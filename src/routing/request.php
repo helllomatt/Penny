@@ -20,6 +20,7 @@ class Request {
      * @return Penny\Request
      */
     public function __construct($argv = [], $site = '') {
+        $this->redirectSlash();
         $this->findMethod();
         $this->findVariables($argv);
         if ($this->using_method !== 'cli') {
@@ -27,6 +28,14 @@ class Request {
             $this->checkRealFile();
         }
         return $this;
+    }
+
+    private function redirectSlash() {
+        $request_path = explode("?", $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])[0];
+
+        if (substr($request_path, -1, 1) == "/") {
+            header("Location: //".rtrim($request_path, "/"));
+        }
     }
 
     /**
