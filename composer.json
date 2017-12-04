@@ -15,7 +15,8 @@
         "files": ["src/misc/misc.functions.php"]
     },
     "require": {
-        "helllomatt/basically": "^0.3.0"
+        "helllomatt/basically": "^0.3.0",
+        "hashids/hashids": "^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "6.*"

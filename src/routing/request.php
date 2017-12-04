@@ -20,8 +20,9 @@ class Request {
      * @return Penny\Request
      */
     public function __construct($argv = [], $site = '') {
-        $this->redirectSlash();
         $this->findMethod();
+        
+        if ($this->using_method != "cli") $this->redirectSlash();
         $this->findVariables($argv);
         if ($this->using_method !== 'cli') {
             $this->findSite($site);

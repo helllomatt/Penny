@@ -2,6 +2,8 @@
 
 namespace Penny;
 
+use Hashids\Hashids;
+
 
 /**
  * Checks if a string is JSON
@@ -57,4 +59,17 @@ function clean_slashes($url) {
 
 function pre($array) {
     echo "<pre>".print_r($array, true)."</pre>";
+}
+
+function decode_id($id, $allow_numeric = true) {
+    if (is_numeric($id) && $allow_numeric) return $id;
+    $hashids = new Hashids("", 11, Config::get("hashidSalt"));
+    $decoded = $hashids->decode($id);
+    if (empty($decoded)) return 0;
+    return $decoded[0];
+}
+
+function encode_id($id) {
+    $hashids = new Hashids("", 11, Config::get("hashidSalt"));
+    return $hashids->encode($id);
 }
