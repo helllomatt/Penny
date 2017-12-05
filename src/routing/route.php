@@ -13,6 +13,7 @@ class Route {
     private $found_variables = [];
     private $load_file;
     private $using_view_file = true;
+    public $error_code;
 
     public function __construct($request, $route_string, $data, $uri_route) {
         $this->request = $request;
@@ -122,7 +123,16 @@ class Route {
         }
 
         if (empty($results)) return true;
-        else return !in_array(false, $results);
+        else {
+            foreach ($results as $result) {
+                if (is_numeric($result)) {
+                    $this->error_code = $result;
+                }
+            }
+
+
+            return (!in_array(false, $results) && $this->error_code == null);
+        }
     }
 
     /**

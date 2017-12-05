@@ -17,7 +17,7 @@ class ViewResponse {
         if (!$error) {
             $this->viewExists();
             $this->getDefaultTheme();
-        } else $this->getErrorTheme();
+        }
         return $this;
     }
 
@@ -98,6 +98,7 @@ class ViewResponse {
      */
     public function error($code) {
         http_response_code($code);
+        $this->getErrorTheme();
         $view = $this;
         include $this->error_theme;
     }

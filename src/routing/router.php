@@ -13,6 +13,7 @@ class Router {
     private $request_configuration;
     private $request_routes = [];
     private $request_routes_as_routes = [];
+    public $response_code = 200;
 
     public function __construct($request) {
         $this->request = $request;
@@ -78,12 +79,49 @@ class Router {
         return $this->found_route_as_array;
     }
 
+    private function formatRouteData($req_config) {
+        $routes = [];
+        foreach ($req_config['routes'] as $key => $route) {
+            if (isset($req_config['routePrefix'])) $route['prefixed'] = true;
+
+            if (isset($req_config['globalMiddlewareActions'])) {
+                if (isset($route['middlewareAction'])) {
+                    if (is_array($route['middlewareAction'])) {
+                        $route['middlewareAction'] = array_merge($route['middlewareAction'], $req_config['globalMiddlewareActions']);
+                    } else {
+                        $route['middlewareAction'] = array_merge([$route['middlewareAction']], $req_config['globalMiddlewareActions']);
+                    }
+                } else {
+                    $route['middlewareAction'] = $req_config['globalMiddlewareActions'];
+                }
+            }
+
+            if (isset($req_config['routePrefix'])) {
+                $routes[$req_config['routePrefix'].$key] = $route;
+            } else {
+                $routes[$key] = $route;
+            }
+        }
+
+        return $routes;
+    }
+
+    private function autoload_route_files($req_config, $site_path) {
+        if (isset($req_config['autoload'])) {
+            $this->get_autoload_files($req_config['autoload'], Config::apiFolder());
+        }
+
+        if (isset($req_config['middleware']) && $site_path != "api") {
+            $this->get_autoload_files($req_config['middleware'], Config::siteFolder($site_path));
+        }
+    }
+
     /**
      * Loads the site-specific routes
      *
      * @return null
      */
-    public function loadSiteRoutes($file = "config.json") {
+    public function loadSiteRoutes($file = "config.json", $globalMiddlewareActions = []) {
         if (!Config::loaded()) return;
         $site_path = Config::forSite($this->request->site())['folder'];
         $config_path = REL_ROOT.Config::siteFolder($site_path)."/".$file;
@@ -96,41 +134,22 @@ class Router {
                 $req_config = json_decode($config, true);
                 $this->request_configuration = $req_config;
 
-                if (isset($req_config['routePrefix'])) {
-                    $routes = [];
-                    foreach ($req_config['routes'] as $key => $route) {
-                        $route['prefixed'] = true;
-
-                        if (isset($req_config['globalMiddlewareActions'])) {
-                            if (isset($route['middlewareAction'])) {
-                                if (is_array($route['middlewareAction'])) {
-                                    $route['middlewareAction'] = array_merge($route['middlewareAction'], $req_config['globalMiddlewareActions']);
-                                } else {
-                                    $route['middlewareAction'] = array_merge([$route['middlewareAction']], $req_config['globalMiddlewareActions']);
-                                }
-                            } else {
-                                $route['middlewareAction'] = $req_config['globalMiddlewareActions'];
-                            }
-                        }
-
-                        $routes[$req_config['routePrefix'].$key] = $route;
+                if (!isset($req_config['globalMiddlewareActions'])) $req_config['globalMiddlewareActions'] = [];
+                if (!empty($globalMiddlewareActions)) {
+                    if (isset($req_config['globalMiddlewareActions'])) {
+                        $req_config['globalMiddlewareActions'] = array_merge($req_config['globalMiddlewareActions'], $globalMiddlewareActions);
+                    } else {
+                        $req_config['globalMiddlewareActions'] = $globalMiddlewareActions;
                     }
-
-                    $this->request_routes = array_merge($this->request_routes, $routes);
-                } else {
-                    $this->request_routes = array_merge($this->request_routes, $req_config['routes']);
                 }
 
-                if (isset($req_config['autoload'])) {
-                    $this->get_autoload_files($req_config['autoload'], Config::apiFolder());
-                }
-
-                if (isset($req_config['middleware'])) {
-                    $this->get_autoload_files($req_config['middleware'], Config::siteFolder($site_path));
-                }
+                $this->request_routes = array_merge($this->request_routes, $this->formatRouteData($req_config));
+                $this->autoload_route_files($req_config, $site_path);
 
                 if (isset($req_config['forwards'])) {
-                    foreach ($req_config['forwards'] as $forward) $this->loadSiteRoutes($forward);
+                    foreach ($req_config['forwards'] as $forward) {
+                        $this->loadSiteRoutes($forward, $req_config['globalMiddlewareActions']);
+                    }
                 }
             }
         }
@@ -157,7 +176,7 @@ class Router {
      *
      * @return null
      */
-    public function loadApiRoutes($file = 'config.json') {
+    public function loadApiRoutes($file = 'config.json', $globalMiddlewareActions = []) {
         if (!Config::loaded()) return;
         if (!file_exists(REL_ROOT.Config::apiFolder().$file)) {
             throw new RouterException('The api configuration information doesn\'t exist.');
@@ -172,23 +191,22 @@ class Router {
                     $this->get_autoload_files($req_config['autoload'], Config::apiFolder());
                 }
 
-                if (isset($req_config['middleware'])) {
-                    $this->get_autoload_files($req_config['middleware'], Config::siteFolder($site_path));
-                }
-
-                if (isset($req_config['routePrefix'])) {
-                    $routes = [];
-                    foreach ($req_config['routes'] as $key => $route) {
-                        $routes[$req_config['routePrefix'].$key] = $route;
+                if (!isset($req_config['globalMiddlewareActions'])) $req_config['globalMiddlewareActions'] = [];
+                if (!empty($globalMiddlewareActions)) {
+                    if (isset($req_config['globalMiddlewareActions'])) {
+                        $req_config['globalMiddlewareActions'] = array_merge($req_config['globalMiddlewareActions'], $globalMiddlewareActions);
+                    } else {
+                        $req_config['globalMiddlewareActions'] = $globalMiddlewareActions;
                     }
-
-                    $this->reqeust_routes = array_merge($this->request_routes, $routes);
-                } else {
-                    $this->request_routes = array_merge($this->request_routes, $req_config['routes']);
                 }
+
+                $this->request_routes = array_merge($this->request_routes, $this->formatRouteData($req_config));
+                $this->autoload_route_files($req_config, "api");
 
                 if (isset($req_config['forwards'])) {
-                    foreach ($req_config['forwards'] as $forward) $this->loadApiRoutes($forward);
+                    foreach ($req_config['forwards'] as $forward) {
+                        $this->loadApiRoutes($forward, $req_config['globalMiddlewareActions']);
+                    }
                 }
             }
         }
@@ -283,6 +301,11 @@ class Router {
                 $this->request->addVariables($route->variables());
                 $this->autoloadFiles();
                 return $route;
+            } else {
+                if (is_numeric($route->error_code)) {
+                    $this->response_code = $route->error_code;
+                    return null;
+                }
             }
         }
 

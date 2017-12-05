@@ -72,6 +72,6 @@ class ApiResponse {
      * @return void
      */
     public function error($code) {
-        http_response_code(404);
+        http_response_code($code);
     }
 }
