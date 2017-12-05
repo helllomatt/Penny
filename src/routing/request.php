@@ -21,7 +21,7 @@ class Request {
      */
     public function __construct($argv = [], $site = '') {
         $this->findMethod();
-        
+
         if ($this->using_method != "cli") $this->redirectSlash();
         $this->findVariables($argv);
         if ($this->using_method !== 'cli') {
@@ -163,6 +163,21 @@ class Request {
         return $this->domain;
     }
 
+    private function getAllSitesFromConfig() {
+        $everything = Config::getAll();
+        $sites = [];
+        foreach ($everything as $key => $value) {
+            if (!isset($value['domain'])) continue;
+            $sites[$key] = $value;
+        }
+
+        uasort($sites, function($a, $b) {
+            return strlen($b['domain']) - strlen($a['domain']);
+        });
+
+        return $sites;
+    }
+
     /**
      * Defines the site this request is meant for.
      *
@@ -177,7 +192,7 @@ class Request {
         $domain = $this->getDomain();
 
         if (strpos($this->found_variables['pennyRoute'], Config::get("apiIdentity", true)) === false) {
-            foreach (Config::getAll() as $site_name => $data) {
+            foreach ($this->getAllSitesFromConfig() as $site_name => $data) {
                 if (!isset($data['domain'])) continue;
                 if (strpos($domain, clean_slashes($data['domain'])) === 0) {
                     $this->for_site = $site_name;
