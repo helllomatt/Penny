@@ -21,10 +21,10 @@ class Request {
      */
     public function __construct($argv = [], $site = '') {
         $this->findMethod();
-
-        if ($this->using_method != "cli") $this->redirectSlash();
         $this->findVariables($argv);
+
         if ($this->using_method !== 'cli') {
+            $this->redirectSlash();
             $this->findSite($site);
             $this->checkRealFile();
         }
@@ -32,6 +32,7 @@ class Request {
     }
 
     private function redirectSlash() {
+        if ($this->found_variables['pennyRoute'] == "") return;
         $request_path = explode("?", $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])[0];
 
         if (substr($request_path, -1, 1) == "/") {
