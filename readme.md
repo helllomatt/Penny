@@ -340,7 +340,7 @@ This will autoload any file with the namespace of `MW_Namespace` inside of the `
 ```
 "routes": {
     "/": {
-        "middleware_action": "MW_Namespace\\MyClass::validate_something"
+        "middlewareAction": "MW_Namespace\\MyClass::validate_something"
         ...
     }
 }
@@ -361,3 +361,16 @@ This is very similar to the API middleware, but there can be one difference. If 
 Now we're looking for the `MW_Namespace` inside of the `sites/yoursite/middleware` folder, instead of the `apis/middleware` folder.
 
 The actions are called and behave the same way.
+
+### Global Middleware
+Sometimes there's whole sections of websites that could be off limits, or need some sort of requirement before users can get on to it. In those cases, there's global middleware to follow suit to a whole configuration file of routes. As like before, you're just defining the actions to perform as the route is being determined. Instead of defining this information in the route, it's defined outside of the route scope, like the `autoload` property.
+
+```
+"autoload": {...},
+"globalMiddlewareActions": [
+    "MW_Namespace\\MyClass::validate_something",
+    "MW_Namespace\\MyClass::validate_something_else"
+]
+```
+
+Each item of the `globalMiddlewareActions` will run, returning either `TRUE` or `FALSE`. __If _any_ of the actions returns false, then the route is denied.__

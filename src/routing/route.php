@@ -110,14 +110,32 @@ class Route {
             $this->using_view_file = false;
         }
 
-        if (isset($this->route_data['middleware_action'])) {
-            $action = $this->middlewareActionExists($this->route_data['middleware_action']);
-            if (!$action) return false;
-
-            return call_user_func_array([$action[0], $action[1]], []);
+        $results = [];
+        if (isset($this->route_data['middlewareAction'])) {
+            if (is_array($this->route_data['middlewareAction'])) {
+                foreach ($this->route_data['middlewareAction'] as $action_path) {
+                    $results[] = $this->runMiddlewareAction($action_path);
+                }
+            } else {
+                $results[] = $this->runMiddlewareAction($this->route_data['middlewareAction']);
+            }
         }
 
-        return true;
+        if (empty($results)) return true;
+        else return !in_array(false, $results);
+    }
+
+    /**
+     * Runs a middleware action path (e.g. Users\\SessionController::require_login)
+     *
+     * @param  string  $action_path
+     * @return boolean defined by the output of the function, should be TRUE or FALSE
+     */
+    private function runMiddlewareAction($action_path) {
+        $action = $this->middlewareActionExists($action_path);
+        if (!$action) return false;
+
+        return call_user_func_array([$action[0], $action[1]], []);
     }
 
     /**

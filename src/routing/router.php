@@ -100,6 +100,19 @@ class Router {
                     $routes = [];
                     foreach ($req_config['routes'] as $key => $route) {
                         $route['prefixed'] = true;
+
+                        if (isset($req_config['globalMiddlewareActions'])) {
+                            if (isset($route['middlewareAction'])) {
+                                if (is_array($route['middlewareAction'])) {
+                                    $route['middlewareAction'] = array_merge($route['middlewareAction'], $req_config['globalMiddlewareActions']);
+                                } else {
+                                    $route['middlewareAction'] = array_merge([$route['middlewareAction']], $req_config['globalMiddlewareActions']);
+                                }
+                            } else {
+                                $route['middlewareAction'] = $req_config['globalMiddlewareActions'];
+                            }
+                        }
+
                         $routes[$req_config['routePrefix'].$key] = $route;
                     }
 
