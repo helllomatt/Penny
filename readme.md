@@ -373,7 +373,7 @@ Sometimes there's whole sections of websites that could be off limits, or need s
 ]
 ```
 
-Each item of the `globalMiddlewareActions` will run, returning either `TRUE` or `FALSE`. __If _any_ of the actions returns false, then the route is denied.__
+Each item of the `globalMiddlewareActions` will run, returning either `TRUE`, `FALSE` or a `HTTP error code`. __If _any_ of the actions returns false, then the route is denied.__
 
 ### Responding with HTTP Error Codes
 Take advantage of unauthorized, forbidden, not found, or any other HTTP error codes that you would need to. Simply return them from the middleware class to push it to the browser.
