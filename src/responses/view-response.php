@@ -114,7 +114,7 @@ class ViewResponse {
         include $this->view;
     }
 
-    public function includeSiteFile($file) {
+    public function includeSiteFile($file, $passing_data = []) {
         $view = $this;
         $route = $this->route;
         $path = REL_ROOT.Config::siteFolder($this->config['folder'])."/".$file;
