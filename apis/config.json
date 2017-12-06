@@ -2,6 +2,9 @@
     "autoload": {
         "PennyCLI\\": "./"
     },
+    "forwards": [
+        "package-manager/config.json"
+    ],
     "routes": {
         "init": {
             "action": "PennyCLI\\Setup::init"
