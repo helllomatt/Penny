@@ -23,7 +23,7 @@ class FileSystem {
             if (in_array($file, ['.', '..'])) continue;
             if (is_dir($folder.'/'.$file) && isset($options['recursive']) && $options['recursive'] == true) {
                 if (isset($options['flat']) && $options['flat'] == true) {
-                    $ret[] = $file.'/';
+                    $ret[] = $folder."/".$file.'/';
                     $ret = array_merge($ret, static::scan($folder.'/'.$file, array_merge($options, ['prefix' => true])));
                 } else {
                     $ret[$file] = static::scan($folder.'/'.$file, $options);
@@ -74,5 +74,21 @@ class FileSystem {
     public static function getExtension($file) {
         $info = new \SplFileInfo($file);
         return $info->getExtension();
+    }
+
+    public static function copy($source, $dest, $permissions = 0755) {
+        if (is_link($source)) return symlink(readlink($source), $dest);
+        if (is_file($source)) return copy($source, $dest);
+        if (!is_dir($dest)) mkdir($dest, $permissions);
+
+        $dir = dir($source);
+        while (false !== $entry = $dir->read()) {
+            if ($entry == '.' || $entry == '..') continue;
+
+            static::copy($source."/".$entry, $dest."/".$entry, $permissions);
+        }
+
+        $dir->close();
+        return true;
     }
 }
