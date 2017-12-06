@@ -1,0 +1,15 @@
+{
+    "autoload": {
+        "PennyCLI\\": "./",
+        "PennyPackage\\": "./package-manager"
+    },
+    "routes": {
+        "install-package": {
+            "action": "PennyCLI\\PackageManager::install",
+            "cli-options": {
+                "link": "required",
+                "name": "required"
+            }
+        }
+    }
+}
