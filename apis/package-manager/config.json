@@ -10,6 +10,16 @@
                 "link": "required",
                 "name": "required"
             }
+        },
+        "update-package": {
+            "action": "PennyCLI\\PackageManager::update",
+            "cli-options": {
+                "link": "required",
+                "name": "required"
+            }
+        },
+        "delete-package": {
+            "action": "PennyCLI\\PackageManager::delete"
         }
     }
 }

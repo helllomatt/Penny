@@ -73,11 +73,11 @@ class Package {
         return isset($this->_config['api']) && is_dir($this->temp_folder.$this->name(false, true)."/".$this->_config['api']);
     }
 
-    public function moveAPI() {
+    public function moveAPI($ignore_existing = false) {
         $temp_path = $this->temp_folder.$this->name(false, true)."/".$this->_config['api'];
         $new_path = Config::apiFolder()."/".$this->name(false, true);
 
-        if (is_dir($new_path)) {
+        if (is_dir($new_path) && !$ignore_existing) {
             $this->cleanUp();
             throw new PackageException("An API already is installed there. Did you mean update-package?");
         }
