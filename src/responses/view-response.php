@@ -13,6 +13,7 @@ class ViewResponse {
     public function __construct($route, $config, $error = false) {
         $this->route = $route;
         $this->site_folder = $config['folder'];
+
         $this->config = $config;
         if (!$error) {
             $this->viewExists();
@@ -111,7 +112,7 @@ class ViewResponse {
     public function contents() {
         $view = $this;
         $route = $this->route;
-        include $this->view;
+        if (file_exists($this->view)) include $this->view;
     }
 
     public function includeSiteFile($file, $passing_data = []) {
@@ -157,6 +158,88 @@ class ViewResponse {
      */
     public function baseHref() {
         return "<base href='/".trim(str_replace($_SERVER['HTTP_HOST'], "", $this->config['domain']), "/")."/'>";
+    }
+
+    /**
+     * Compiles all scripts to be loaded into HTML
+     *
+     * @return string
+     */
+    public function getScripts() {
+        $html = [];
+        if (isset($this->route->data()['js'])) {
+            foreach ($this->route->data()['js'] as $script) {
+                if (strpos("://", $script) !== false) {
+                    $html[] = "<script type='text/javascript' src='".$script."'></script>";
+                } else {
+                    $web_path = $script;
+                    $path = REL_ROOT.Config::siteFolder($this->config['folder'])."/".$script;
+                    $glob = glob($path);
+
+                    if (empty($glob)) $glob = [$path];
+
+                    foreach ($glob as $gpath) {
+                        $script = str_replace(REL_ROOT.Config::siteFolder($this->config['folder'])."/", "", $gpath);
+                        if (!file_exists($gpath)) continue;
+                        if (is_dir($gpath)) {
+                            $files = FileSystem::scan($gpath);
+                            foreach ($files as $file) {
+                                if (substr($file, -2, 2) === "js") {
+                                    $html[] = "<script type='text/javascript' src='".$web_path."/".$file."'></script>";
+                                }
+                            }
+                        } else {
+                            if (substr($script, -2, 2) === "js") {
+                                $html[] = "<script type='text/javascript' src='".$script."'></script>";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return static::getGlobalScripts().implode("", $html);
+    }
+
+    /**
+     * Compiles all scripts to be loaded into HTML
+     *
+     * @return string [description]
+     */
+    public function getStyles() {
+        $html = [];
+        if (isset($this->route->data()['css'])) {
+            foreach ($this->route->data()['css'] as $style) {
+                if (strpos("://", $style) !== false) {
+                    $html[] = "<link rel='stylesheet' type='text/css' href='".$style."'>";
+                } else {
+                    $web_path = $style;
+                    $path = REL_ROOT.Config::siteFolder($this->config['folder'])."/".$style;
+                    $glob = glob($path);
+
+                    if (empty($glob)) $glob = [$path];
+
+                    foreach ($glob as $gpath) {
+                        $script = str_replace(REL_ROOT.Config::siteFolder($this->config['folder'])."/", "", $gpath);
+                        if (!file_exists($gpath)) continue;
+                        if (is_dir($path)) {
+                            $files = FileSystem::scan($path);
+                            foreach ($files as $file) {
+                                if (substr($file, -2, 2) === "css") {
+                                    $html[] = "<link rel='stylesheet' type='text/css' href='".$web_path."/".$file."'>";
+                                }
+                            }
+                        } else {
+                            if (substr($style, -2, 2) === "css") {
+                                $html[] = "<link rel='stylesheet' type='text/css' href='".$style."'>";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return static::getGlobalStyles().implode("", $html);
     }
 
     /**
