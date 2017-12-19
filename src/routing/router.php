@@ -124,7 +124,10 @@ class Router {
     public function loadSiteRoutes($file = "config.json", $globalMiddlewareActions = []) {
         if (!Config::loaded()) return;
         $site_path = Config::forSite($this->request->site())['folder'];
-        $config_path = REL_ROOT.Config::siteFolder($site_path)."/".$file;
+        $dist_config_path = REL_ROOT.Config::siteFolder($site_path)."/dist/config.dist.json";
+        if (file_exists($dist_config_path)) $config_path = $dist_config_path;
+        else $config_path = REL_ROOT.Config::siteFolder($site_path)."/".$file;
+
         if (!file_exists($config_path)) {
             throw new RouterException('The site configuration information doesn\'t exist.');
         } else {

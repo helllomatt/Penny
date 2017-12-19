@@ -167,8 +167,15 @@ class ViewResponse {
      */
     public function getScripts() {
         $html = [];
+        $using_dist = false;
+        $dist = "";
         if (isset($this->route->data()['js'])) {
             foreach ($this->route->data()['js'] as $script) {
+                if (strpos($script, "dist/") !== false) {
+                    $using_dist = true;
+                    $dist = "<script type='text/javascript' src='".$script."'></script>";
+                }
+
                 if (strpos("://", $script) !== false) {
                     $html[] = "<script type='text/javascript' src='".$script."'></script>";
                 } else {
@@ -198,7 +205,11 @@ class ViewResponse {
             }
         }
 
-        return static::getGlobalScripts().implode("", $html);
+        if (!$using_dist) {
+            return static::getGlobalScripts().implode("", $html);
+        } else {
+            return "<script type='text/javascript'>var page_id = 'page".$this->route->data()['vars']['page_id']."';</script>".$dist;
+        }
     }
 
     /**

@@ -3,7 +3,8 @@
         "PennyCLI\\": "./"
     },
     "forwards": [
-        "package-manager/config.json"
+        "package-manager/config.json",
+        "site-builder/config.json"
     ],
     "routes": {
         "init": {

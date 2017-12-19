@@ -1,0 +1,13 @@
+{
+    "autoload": {
+        "SiteBuilder\\": "./site-builder"
+    },
+    "routes": {
+        "build-site": {
+            "action": "SiteBuilder\\CLI::build",
+            "cli-options": {
+                "name": "required"
+            }
+        }
+    }
+}
