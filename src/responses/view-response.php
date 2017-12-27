@@ -219,7 +219,7 @@ class ViewResponse {
         $html = [];
         if (isset($this->route->data()['css'])) {
             foreach ($this->route->data()['css'] as $style) {
-                if (strpos("://", $style) !== false) {
+                if (strpos($style, "://") !== false) {
                     $html[] = "<link rel='stylesheet' type='text/css' href='".$style."'>";
                 } else {
                     $web_path = $style;
@@ -229,17 +229,17 @@ class ViewResponse {
                     if (empty($glob)) $glob = [$path];
 
                     foreach ($glob as $gpath) {
-                        $script = str_replace(REL_ROOT.Config::siteFolder($this->config['folder'])."/", "", $gpath);
+                        $style = str_replace(REL_ROOT.Config::siteFolder($this->config['folder'])."/", "", $gpath);
                         if (!file_exists($gpath)) continue;
                         if (is_dir($path)) {
                             $files = FileSystem::scan($path);
                             foreach ($files as $file) {
-                                if (substr($file, -2, 2) === "css") {
+                                if (substr($file, -3, 3) === "css") {
                                     $html[] = "<link rel='stylesheet' type='text/css' href='".$web_path."/".$file."'>";
                                 }
                             }
                         } else {
-                            if (substr($style, -2, 2) === "css") {
+                            if (substr($style, -3, 3) === "css") {
                                 $html[] = "<link rel='stylesheet' type='text/css' href='".$style."'>";
                             }
                         }
