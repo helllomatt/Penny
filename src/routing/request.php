@@ -4,7 +4,7 @@ namespace Penny;
 
 class Request {
     private $using_method;
-    private $found_variables;
+    public $found_variables;
     private $for_site;
     private $request_type;
     private $found_real_file = false;
@@ -124,12 +124,32 @@ class Request {
     }
 
     /**
+     * Returns a specific found variable
+     *
+     * @param  string|int  $key
+     * @return any
+     */
+    public function variable($key) {
+        return $this->found_variables[$key];
+    }
+
+    /**
      * Adds variables to the request data
      *
      * @param array $vars
      */
     public function addVariables($vars) {
         $this->found_variables = array_merge($this->found_variables, $vars);
+    }
+
+    /**
+     * Creates/Updates a variable for the request
+     *
+     * @param string|int $key
+     * @param any $val
+     */
+    public function setVariable($key, $val) {
+        $this->found_variables[$key] = $val;
     }
 
     /**

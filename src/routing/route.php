@@ -44,6 +44,36 @@ class Route {
     }
 
     /**
+     * Creates/Updates a data item for the route
+     *
+     * @param string|int $key
+     * @param any $value
+     */
+    public function setData($key, $value) {
+        $this->route_data[$key] = $value;
+    }
+
+    /**
+     * Creates/Updates a data variable for the route
+     *
+     * @param string|int $key
+     * @param any $value
+     */
+    public function setVariable($key, $value) {
+        $this->route_data['vars'][$key] = $value;
+    }
+
+    /**
+     * Returns a specific variable for the route
+     *
+     * @param  string|int  $key
+     * @return any
+     */
+    public function variable($key) {
+        return $this->route_data['vars'][$key];
+    }
+
+    /**
      * Returns the variables found in the URI
      *
      * @return array
@@ -104,7 +134,6 @@ class Route {
 
         $this->validateVariables();
 
-        if (isset($this->route_data['vars'])) $this->request->addVariables($this->route_data['vars']);
         if (isset($this->route_data['file'])) {
             $this->load_file = REL_ROOT.Config::siteFolder($this->request->site()).'/'.$this->route_data['file'];
             if (!file_exists($this->load_file)) return false;
@@ -121,6 +150,8 @@ class Route {
                 $results[] = $this->runMiddlewareAction($this->route_data['middlewareAction']);
             }
         }
+
+        if (isset($this->route_data['vars'])) $this->request->addVariables($this->route_data['vars']);
 
         if (empty($results)) return true;
         else {
@@ -145,7 +176,7 @@ class Route {
         $action = $this->middlewareActionExists($action_path);
         if (!$action) return false;
 
-        return call_user_func_array([$action[0], $action[1]], []);
+        return call_user_func_array([$action[0], $action[1]], [$this->request, $this]);
     }
 
     /**

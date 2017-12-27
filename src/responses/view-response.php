@@ -10,12 +10,15 @@ class ViewResponse {
     private $error_theme;
     private $view;
 
+    private static $_global_scripts = [];
+
     public function __construct($route, $config, $error = false) {
         $this->route = $route;
         $this->site_folder = $config['folder'];
 
         $this->config = $config;
         if (!$error) {
+            static::$_global_scripts = Config::get("globalScripts", true);
             $this->viewExists();
             $this->getDefaultTheme();
         }
@@ -98,6 +101,8 @@ class ViewResponse {
      * @return void
      */
     public function error($code) {
+        pre(debug_backtrace());
+        die();
         http_response_code($code);
         $this->getErrorTheme();
         $view = $this;
@@ -169,6 +174,7 @@ class ViewResponse {
         $html = [];
         $using_dist = false;
         $dist = "";
+
         if (isset($this->route->data()['js'])) {
             foreach ($this->route->data()['js'] as $script) {
                 if (strpos($script, "dist/") !== false) {
@@ -176,7 +182,10 @@ class ViewResponse {
                     $dist = "<script type='text/javascript' src='".$script."'></script>";
                 }
 
-                if (strpos("://", $script) !== false) {
+                if (strpos($script, "/") === 0) {
+                    static::addGlobalScript(ltrim($script, "/"));
+                    continue;
+                } elseif (strpos($script, "://") !== false) {
                     $html[] = "<script type='text/javascript' src='".$script."'></script>";
                 } else {
                     $web_path = $script;
@@ -253,14 +262,22 @@ class ViewResponse {
         return static::getGlobalStyles().implode("", $html);
     }
 
+    public static function globalScripts() {
+        return static::$_global_scripts;
+    }
+
+    public static function addGlobalScript($script) {
+        return static::$_global_scripts[] = $script;
+    }
+
     /**
      * Returns an HTML string with all of the global scripts
      *
      * @return string
      */
     public static function getGlobalScripts() {
-        $scripts = Config::get("globalScripts", true);
-        if (!$scripts) return "";
+        $scripts = static::globalScripts();
+        if (!$scripts || empty($scripts)) return "";
 
         $html = [];
         foreach ($scripts as $script) {

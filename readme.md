@@ -387,3 +387,77 @@ public static function validate_something() {
 ```
 
 If you have an array of middleware actions, the __LAST__ one to return a error code will be the one that gets pushed to the end user.
+
+### Modifying Route Data in Middleware Calls
+
+Sometimes you want to display something based on the user's permissions and rights. To do that your middleware class functions can accept two variables, the `request` and the `route`. The request is the whole call; any variables found in the `GET` or `POST` headers are accessible through this argument. The route is the information specific to the matching route of the request. That's the information found in your `site/example/config.json` file. You can change anything related to the specific route, like variables, the view file, etc.
+
+If you want to inject data to be used during the call so that you only have to grab it once, you need to inject it into the route. Doing so into the request will be a waste of resources, as it's mostly a read-only object.
+
+Here's an example middleware class that changes the title variable of the page:
+
+```
+<?php
+
+namespace Test;
+
+class MW_TEST {
+    public static function change_title($request, $route) {
+        $route->setVariable("title", "This is a new title");
+    }
+}
+```
+
+Here's an example that inject some JavaScript files into the page:
+
+```
+<?php
+
+namespace Test;
+
+class MW_TEST {
+    public static function inject_js($request, $route) {
+        $route->addData("js", ["site/example/sample.js"]);
+    }
+}
+```
+
+Here's an example that adds data to the request, to be pulled out later on:
+
+```
+<?php
+
+namespace Test;
+
+class MW_TEST {
+    public static function add_route_data($request, $route) {
+        $route->addVariable("greeting", "Hello, world!");
+    }
+}
+
+// Later on in a view file...
+echo $route->variable("greeting"); // Hello, world!
+```
+
+Now lets say a user is going to a specific, dynamic page with an ID of one. You can get all of that information once in the middleware, save it and use it later on by referencing the route variables.
+
+Here's an example that gets information from the request GET header:
+
+```
+<?php
+
+namespace Test;
+
+class MW_TEST {
+    public static function add_request_data($request, $route) {
+        $id = $request->variable("id");
+        // get something with ID
+        $route->addVariable("something", $something_object);
+    }
+}
+
+// Later on in a view file...
+echo $route->variable("something"); // Hello, world!
+```
+
+> __Note:__ Referencing variables only works when a view file is called. If a user is calling an API, you can set all the data you want in the world, but you will never have a way to access it.
