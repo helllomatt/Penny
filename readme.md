@@ -441,7 +441,7 @@ echo $route->variable("greeting"); // Hello, world!
 
 Now lets say a user is going to a specific, dynamic page with an ID of one. You can get all of that information once in the middleware, save it and use it later on by referencing the route variables.
 
-Here's an example that gets information from the request GET header:
+Here's an example that gets information from the request `GET` header:
 
 ```
 <?php
