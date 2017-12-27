@@ -457,7 +457,7 @@ class MW_TEST {
 }
 
 // Later on in a view file...
-echo $route->variable("something"); // Hello, world!
+echo $route->variable("something"); // $something_object
 ```
 
 > __Note:__ Referencing variables only works when a view file is called. If a user is calling an API, you can set all the data you want in the world, but you will never have a way to access it.
