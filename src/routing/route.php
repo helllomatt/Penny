@@ -176,7 +176,7 @@ class Route {
         $action = $this->middlewareActionExists($action_path);
         if (!$action) return false;
 
-        return call_user_func_array([$action[0], $action[1]], [$this->request, $this]);
+        return call_user_func_array([$action[0], $action[1]], [$this]);
     }
 
     /**
