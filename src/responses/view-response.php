@@ -101,8 +101,6 @@ class ViewResponse {
      * @return void
      */
     public function error($code) {
-        pre(debug_backtrace());
-        die();
         http_response_code($code);
         $this->getErrorTheme();
         $view = $this;
