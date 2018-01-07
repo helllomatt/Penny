@@ -82,7 +82,7 @@ class Router {
     private function formatRouteData($req_config) {
         $routes = [];
         foreach ($req_config['routes'] as $key => $route) {
-            if (isset($req_config['routePrefix'])) $route['prefixed'] = true;
+            if (isset($req_config['routePrefix']) && $this->request->method() != "cli") $route['prefixed'] = true;
 
             if (isset($req_config['globalMiddlewareActions'])) {
                 if (isset($route['middlewareAction'])) {
@@ -96,7 +96,7 @@ class Router {
                 }
             }
 
-            if (isset($req_config['routePrefix'])) {
+            if (isset($req_config['routePrefix']) && $this->request->method() != "cli") {
                 $routes[$req_config['routePrefix'].$key] = $route;
             } else {
                 $routes[$key] = $route;
