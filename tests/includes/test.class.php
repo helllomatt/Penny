@@ -14,4 +14,8 @@ class Greeting {
     public static function echo_hello_name($name) {
         echo "Hello, ".$name."!";
     }
+
+    public static function return_404() {
+        return 404;
+    }
 }

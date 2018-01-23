@@ -15,7 +15,7 @@ class Route {
     private $using_view_file = true;
     public $error_code;
 
-    public function __construct($request, $route_string, $data, $uri_route) {
+    public function __construct($request = null, $route_string = "", $data = [], $uri_route = "") {
         $this->request = $request;
         if (substr($route_string, 0, 1) == '/') $route_string = ltrim($route_string, '/');
         if (substr($route_string, -1) == '/') $route_string = substr($route_string, 0, -1);
@@ -206,6 +206,7 @@ class Route {
      * @return void
      */
     private function validateVariables() {
+        print_r($this->route_data);
         if (!isset($this->route_data['variables'])) return;
 
         $req_vars = array_merge($this->found_variables, $this->request->variables());
@@ -226,49 +227,11 @@ class Route {
                 }
                 else throw new ResponseException('Missing variable "'.$key.'".', 0);
             } elseif (isset($req_vars[$key])) {
-                // $custom_errors = $this->buildCustomErrors($errors);
                 if (isset($match['values'])) $match = array_merge($match['values'], $match);
                 unset($match['values']);
-                // $this->found_variables[$key] = CRUD::sanitize($req_vars[$key], $match, $custom_errors);
                 $this->found_variables[$key] = $req_vars[$key];
             } elseif (!$required) $this->found_variables[$key] = null;
         }
-    }
-
-    /**
-     * Builds custom errors for API route variables
-     *
-     * @param  array $errors
-     * @return Basically\Errors;
-     */
-    private function buildCustomErrors($errors) {
-        $index = [
-            'missing'     => 'setWhenMissingRequired',
-            'notstring'   => 'setWhenNotString',
-            'tooshort'    => 'setWhenShortString',
-            'toolong'     => 'setWhenLongString',
-            'mismatch'    => 'setWhenStringMatch',
-            'bademail'    => 'setWhenBadEmail',
-            'notnumber'   => 'setWhenNotNumber',
-            'baddate'     => 'setWhenBadDate',
-            'badname'     => 'setWhenBadName',
-            'notbool'     => 'setWhenNotBoolean' ];
-
-        $custom = new Errors();
-        foreach ($errors as $error => $data) {
-            $function = $index[$error];
-            if (is_array($data)) {
-                if (!isset($data['code'])) {
-                    $custom->$function($data['message']);
-                } else {
-                    $custom->$function($data['message'], $data['code']);
-                }
-            } else {
-                $custom->$function($data);
-            }
-        }
-
-        return $custom;
     }
 
     /**
@@ -305,6 +268,6 @@ class Route {
      * @return string
      */
     public function file() {
-        return $this->load_file;
+        return clean_slashes($this->load_file);
     }
 }
