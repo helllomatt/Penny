@@ -226,10 +226,11 @@ class Route {
                 }
                 else throw new ResponseException('Missing variable "'.$key.'".', 0);
             } elseif (isset($req_vars[$key])) {
-                $custom_errors = $this->buildCustomErrors($errors);
+                // $custom_errors = $this->buildCustomErrors($errors);
                 if (isset($match['values'])) $match = array_merge($match['values'], $match);
                 unset($match['values']);
-                $this->found_variables[$key] = CRUD::sanitize($req_vars[$key], $match, $custom_errors);
+                // $this->found_variables[$key] = CRUD::sanitize($req_vars[$key], $match, $custom_errors);
+                $this->found_variables[$key] = $req_vars[$key];
             } elseif (!$required) $this->found_variables[$key] = null;
         }
     }
