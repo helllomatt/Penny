@@ -9,7 +9,6 @@
 namespace Penny;
 
 if (!defined('REL_ROOT')) define('REL_ROOT', './vendor/helllomatt/penny/');
-if (!defined('SITE')) define('SITE', '');
 
 require 'vendor/autoload.php';
 

@@ -24,12 +24,29 @@ class FileSystemTests extends TestCase {
 
     public function testFlatReturn() {
         $files = FileSystem::scan('./tests/fs', ['recursive' => true, 'flat' => true]);
-        $diff = array_diff(['file1.txt', 'namespace.php', 'folder/', 'folder/file3.txt'], $files);
+        $diff = array_diff(['file1.txt', 'namespace.php', 'folder/file3.txt'], $files);
         $this->assertEquals([], $diff);
     }
 
     public function testGettingNamespace() {
         $namespace = FileSystem::findNamespace('./tests/fs/namespace.php');
         $this->assertEquals('FileSystemTest', $namespace);
+    }
+
+    public function testGettingNamespaceOnInvalidFile() {
+        $this->expectException("Penny\FileSystemException");
+        FileSystem::findNamespace("no");
+    }
+
+    public function testGettingFileExtension() {
+        $this->assertEquals("txt", FileSystem::getExtension("tests/fs/file1.txt"));
+    }
+
+    public function testCopyingFiles() {
+        FileSystem::copy("tests/fs", "tests/fsnew");
+    }
+
+    public function testDeletingCopiedFiles() {
+        FileSystem::rmdir("tests/fsnew");
     }
 }

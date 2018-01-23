@@ -1,16 +1,12 @@
 <?php
 
 namespace Penny;
-use Basically\Crud;
-use Basically\Errors;
 
 class ApiResponse {
     private $route;
     private $config;
     private $request;
     private $action;
-    private $found_variables = [];
-    private $method_matches = true;
 
     public function __construct($route, $config, $request = null) {
         $this->route = $route;
@@ -40,8 +36,36 @@ class ApiResponse {
             throw new ResponseException('Cannot run the API action because the method doesn\'t exist');
         }
 
-        $this->action = [$class, $method];
+        $this->setAction($class, $method);
         return true;
+    }
+
+    /**
+     * Defines the class and method of the action that will be run
+     *
+     * @param string $class - Name of the class
+     * @param string $method - Name of the method
+     */
+    public function setAction($class, $method) {
+        $this->action = [$class, $method];
+    }
+
+    /**
+     * Returns the name of the action class
+     *
+     * @return string - Name of the action class
+     */
+    public function actionClass() {
+        return $this->action[0];
+    }
+
+    /**
+     * Returns the name of the action method
+     *
+     * @return string - Name of the action method
+     */
+    public function actionMethod() {
+        return $this->action[1];
     }
 
     /**
@@ -61,7 +85,7 @@ class ApiResponse {
      * @return void
      */
     public function respond($args = [], $auto_echo = true) {
-        call_user_func_array([$this->action[0], $this->action[1]], $args);
+        call_user_func_array([$this->actionClass(), $this->actionMethod()], $args);
         if ($auto_echo) echo JSON::get();
     }
 

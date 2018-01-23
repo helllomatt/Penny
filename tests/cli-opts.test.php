@@ -32,6 +32,20 @@ class CliOptsTest extends TestCase {
         $this->assertEquals(['name' => 'Matt'], $cli_opts->options());
     }
 
+    public function testBadOption() {
+        $args = ["index.php", "test"];
+        $opts = ["name" => "bad"];
+
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(['variables'])->getMock();
+        $request->expects($this->any())->method("variables")->willReturn($args);
+
+        $route = $this->getMockBuilder("Penny\Route")->disableOriginalConstructor()->setMethods(['data'])->getMock();
+        $route->expects($this->any())->method("data")->willReturn(['cli-options' => $opts]);
+
+        $this->expectException('Penny\CliOptException');
+        $cli_opts = new CliOpts($request, $route);
+    }
+
     public function testMissingRequiredOption() {
         $args = ['index.php', 'test'];
         $opts = ['name' => 'required'];
@@ -86,5 +100,16 @@ class CliOptsTest extends TestCase {
 
         $cli_opts = new CliOpts($request, $route);
         $this->assertEquals(['name' => 'Matt is my name', 'age' => '25'], $cli_opts->options());
+    }
+
+    public function testOutput() {
+        $this->expectOutputString("\tHello".PHP_EOL);
+        CliOpts::out("Hello");
+    }
+
+    public function testReadLine() {
+        $expected = "file1.txt";
+        $actual = CliOpts::readline(null, "tests/fs/file1.txt");
+        $this->assertEquals($expected, $actual);
     }
 }

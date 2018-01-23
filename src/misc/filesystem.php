@@ -46,7 +46,7 @@ class FileSystem {
      * @return string
      */
     public static function findNamespace($file) {
-        $handle = fopen($file, 'r');
+        $handle = @fopen($file, 'r');
         if (!$handle) {
             throw new FileSystemException('File couldn\t be opened.');
         } else {
@@ -76,6 +76,14 @@ class FileSystem {
         return $info->getExtension();
     }
 
+    /**
+     * Recursively copies files
+     *
+     * @param string $source - Path to the files that will be copied
+     * @param string $dest - Path to the where the files will be copied to
+     * @param int $permissions - Permissions to apply to the copied files
+     * @return boolean
+     */
     public static function copy($source, $dest, $permissions = 0755) {
         if (is_link($source)) return symlink(readlink($source), $dest);
         if (is_file($source)) return copy($source, $dest);
@@ -90,5 +98,22 @@ class FileSystem {
 
         $dir->close();
         return true;
+    }
+
+    /**
+     * Recursively deletes a folder
+     *
+     * @link http://us1.php.net/manual/en/function.rmdir.php#110489 credit
+     *
+     * @param string $source - Source folder to delete
+     * @return boolean
+     */
+    public static function rmdir($source) {
+        $files = array_diff(scandir($source), [".", ".."]);
+        foreach ($files as $file) {
+            is_dir($source."/".$file) ? static::rmdir($source."/".$file) : unlink($source."/".$file);
+        }
+
+        return rmdir($source);
     }
 }

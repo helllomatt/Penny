@@ -2,7 +2,7 @@
     "siteRootFolder": "tests/sites/",
     "apiRootFolder": "api/",
     "themeRootFolder": "tests/themes/",
-    "globalFolder": "tests/fs",
+    "globalFolder": ["tests/fs", "tests/themes"],
     "autoload": {
         "Test\\": "test/"
     },

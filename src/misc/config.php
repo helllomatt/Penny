@@ -8,6 +8,13 @@ class Config {
     private static $configuration;
 
     /**
+     * Unloads any currently loaded configuration data
+     */
+    public static function unload() {
+        static::$configuration = null;
+    }
+
+    /**
      * Adds a custom variable to the configuration data
      *
      * @param string $key
@@ -47,13 +54,22 @@ class Config {
     }
 
     /**
+     * Deletes a specific key from the config data
+     *
+     * @param string $key - Key to delete from the config
+     */
+    public static function delete($key) {
+        unset(static::$configuration[$key]);
+    }
+
+    /**
      * Returns the configuration information loaded from the file.
      *
      * @param string $site
      * @return array
      */
     public static function forSite($site = '') {
-        if (!static::$configuration) {
+        if (!static::loaded()) {
             throw new ConfigException('Configuration not loaded.');
         } elseif ($site == '') {
             throw new ConfigException('Site not defined to get configuration for.');
@@ -69,7 +85,7 @@ class Config {
      * @return any
      */
     public static function get($key = '', $ignore = false) {
-        if (!static::$configuration) {
+        if (!static::loaded()) {
             throw new ConfigException('Configuration not loaded.');
         } elseif (!isset(static::$configuration[$key]) || $key == '') {
             if (!$ignore) {
@@ -85,7 +101,7 @@ class Config {
      * @return boolean
      */
     public static function hasValue($key = '') {
-        if (!static::$configuration) {
+        if (!static::loaded()) {
             throw new ConfigException('Configuration not loaded.');
         } else return array_key_exists($key, static::$configuration);
     }
@@ -97,7 +113,7 @@ class Config {
      * @return string
      */
     public static function siteFolder($site = '') {
-        if (!static::$configuration) {
+        if (!static::loaded()) {
             throw new ConfigException("Configuration not loaded.");
         } elseif ($site == "") {
             throw new ConfigException("Site folder not provided.");
@@ -115,7 +131,7 @@ class Config {
      * @return string
      */
     public static function siteRootFolder() {
-        if (!static::$configuration) {
+        if (!static::loaded()) {
             throw new ConfigException("Configuration not loaded.");
         } elseif (!isset(static::$configuration['siteRootFolder'])) {
             return "sites/";

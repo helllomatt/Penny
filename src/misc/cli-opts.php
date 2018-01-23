@@ -3,7 +3,6 @@
 namespace Penny;
 
 class CliOpts {
-    private $requests;
     private $route;
     private $found_options = [];
 
@@ -62,16 +61,22 @@ class CliOpts {
     /**
      * Reads input for the CLI
      *
-     * @param  string $prompt
-     * @return string
+     * @param string $prompt - Prompt to output before capturing input
+     * @param string $file - File to read line from
+     * @return string - Captured input
      */
-    public static function readline($prompt = null) {
+    public static function readline($prompt = null, $file = "php://stdin") {
         if($prompt) echo $prompt;
-        $fp = fopen("php://stdin","r");
+        $fp = fopen($file, "r");
         $line = rtrim(fgets($fp, 1024));
         return $line;
     }
 
+    /**
+     * Outputs text to the console, appending an ENDL automatically.
+     *
+     * @param string $text - Text to output to the console
+     */
     public static function out($text = "") {
         echo "\t".$text.PHP_EOL;
     }
