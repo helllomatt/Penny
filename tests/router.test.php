@@ -240,4 +240,148 @@ class RouterTests extends TestCase {
         $routes = $router->loadSiteRoutes("config-forward.json");
         $this->assertEquals(["/forwarded/" => ["view" => "homepage.view.php", "middlewareAction" => [], "prefixed" => true]], $routes);
     }
+
+    public function testLoadingApiRoutes() {
+        Config::load("./tests/sample-config.json");
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'api/index']);
+        $router = new Router($request);
+        $routes = $router->loadApiRoutes();
+        $this->assertEquals(["/" => ["action" => "Test\\Controller::hello", "middlewareAction" => []]], $routes);
+    }
+
+    public function testLoadingApiRoutesConfigFileDoesntExist() {
+        $router = new Router(null);
+        $this->expectException("Penny\RouterException");
+        $router->loadApiRoutes("no");
+    }
+
+    public function testLoadingApiRoutesWithAutoloadedFiles() {
+        Config::load("./tests/sample-config.json");
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'api/index']);
+        $router = new Router($request);
+        $routes = $router->loadApiRoutes("config-autoload.json");
+        $this->assertEquals([], $routes);
+    }
+
+    public function testLoadingApiRoutesWithMiddleware() {
+        Config::load("./tests/sample-config.json");
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'api/index']);
+        $router = new Router($request);
+        $routes = $router->loadApiRoutes("config-middleware.json");
+        $this->assertEquals(["/" => ["action" => "Test\\Controller::hello", "middlewareAction" => ["Test\\Greeting::say_hello"]]], $routes);
+    }
+
+    public function testLoadingApiRoutesWithGlobalMiddleware() {
+        Config::load("./tests/sample-config.json");
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'api/index']);
+        $router = new Router($request);
+        $routes = $router->loadApiRoutes("config-global-middleware.json");
+        $this->assertEquals(["/" => ["action" => "Test\\Controller::hello", "middlewareAction" => ["Test\\Greeting::say_hello", "Test\\Greeting::say_hello"]]], $routes);
+    }
+
+    public function testLoadingApiRoutesWithForwardingAndRoutePrefixed() {
+        Config::load("./tests/sample-config.json");
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'api/index']);
+        $router = new Router($request);
+        $routes = $router->loadApiRoutes("config-forwarding.json");
+        $this->assertEquals(["/forwarded/" => ["action" => "Test\\Controller::hello", "prefixed" => true, "middlewareAction" => []]], $routes);
+    }
+
+    public function testAddingRequestConfiguationVariable() {
+        Config::load("./tests/sample-config.json");
+        $router = new Router(null);
+        $router->addRequestConfigVariable("key", "value");
+
+        $this->invokeMethod($router, "addConfigVariables");
+        $this->assertEquals("value", Config::get("key"));
+    }
+
+    public function testGettingRequestConfiguration() {
+        $router = new Router(null);
+        $router->addRequestConfigVariable("key", "value");
+
+        $this->assertEquals(["add-config" => ["key" => "value"]], $router->config());
+    }
+
+    public function testGettingRoutesAsRoutes() {
+        $router = new Router(null);
+
+        $this->assertEquals([], $router->routes());
+    }
+
+    public function testGettingRoutesAsData() {
+        $router = new Router(null);
+
+        $this->assertEquals([], $router->routesAsArray());
+    }
+
+    public function testMakingRoutes() {
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => 'api/index']);
+        $router = new Router($request);
+        $router->loadApiRoutes();
+
+        $router->makeRoutes();
+        $routes = $router->routes();
+
+        $this->assertEquals(1, count($routes));
+        $this->assertInstanceOf("Penny\Route", $routes[0]);
+    }
+
+    public function testGettingMatch() {
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables", "site"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => '/']);
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
+        $router = new Router($request);
+        $router->findRouteQuery();
+        $router->loadSiteRoutes();
+
+        $router->makeRoutes();
+        $match = $router->getMatch();
+
+        $this->assertInstanceOf("Penny\Route", $match);
+    }
+
+    public function testGetting404Match() {
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables", "site"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => '/']);
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
+        $router = new Router($request);
+        $router->findRouteQuery();
+        $router->loadSiteRoutes("config-mw-error.json");
+
+        $router->makeRoutes();
+        $match = $router->getMatch();
+
+        $this->assertNull($match);
+        $this->assertEquals(404, $router->response_code);
+    }
+
+    public function testGettingNoMatch() {
+        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods(["method", "variables", "site"])->getMock();
+        $request->expects($this->any())->method("method")->willReturn("api");
+        $request->expects($this->any())->method("variables")->willReturn(['pennyRoute' => '/asdf']);
+        $request->expects($this->any())->method("site")->willReturn("defaultSite");
+        $router = new Router($request);
+        $router->findRouteQuery();
+        $router->loadSiteRoutes("config-mw-error.json");
+
+        $router->makeRoutes();
+        $match = $router->getMatch();
+
+        $this->assertNull($match);
+    }
 }

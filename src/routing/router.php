@@ -10,7 +10,7 @@ class Router {
     private $found_route;
     private $found_route_as_array;
     private $autoload_files = [];
-    private $request_configuration;
+    private $request_configuration = ["add-config" => []];
     private $request_routes = [];
     private $request_routes_as_routes = [];
     public $response_code = 200;
@@ -43,9 +43,8 @@ class Router {
         } elseif (!isset($this->request->variables()['pennyRoute'])) {
             throw new RouterException('Cannot find the route.');
         } else {
-            $route = ltrim($this->request->variables()['pennyRoute'], '/');
+            $route = clean_slashes(ltrim($this->request->variables()['pennyRoute'], '/'));
             if (substr($route, -1) == '/') $route = substr($route, 0, -1);
-            $route = clean_slashes($route);
             $this->found_route = $route;
             $this->found_route_as_array = explode('/', $route);
 
@@ -150,12 +149,10 @@ class Router {
                 $this->request_configuration = $req_config;
 
                 if (!isset($req_config['globalMiddlewareActions'])) $req_config['globalMiddlewareActions'] = [];
-                if (!empty($globalMiddlewareActions)) {
-                    if (isset($req_config['globalMiddlewareActions']) && !empty($req_config['globalMiddlewareActions'])) {
-                        $req_config['globalMiddlewareActions'] = array_merge($req_config['globalMiddlewareActions'], $globalMiddlewareActions);
-                    } else {
-                        $req_config['globalMiddlewareActions'] = $globalMiddlewareActions;
-                    }
+                if (isset($req_config['globalMiddlewareActions']) && !empty($req_config['globalMiddlewareActions'])) {
+                    $req_config['globalMiddlewareActions'] = array_merge($req_config['globalMiddlewareActions'], $globalMiddlewareActions);
+                } else {
+                    $req_config['globalMiddlewareActions'] = $globalMiddlewareActions;
                 }
 
                 $this->request_routes = array_merge($this->request_routes, $this->formatRouteData($req_config));
@@ -209,12 +206,10 @@ class Router {
                 }
 
                 if (!isset($req_config['globalMiddlewareActions'])) $req_config['globalMiddlewareActions'] = [];
-                if (!empty($globalMiddlewareActions)) {
-                    if (isset($req_config['globalMiddlewareActions'])) {
-                        $req_config['globalMiddlewareActions'] = array_merge($req_config['globalMiddlewareActions'], $globalMiddlewareActions);
-                    } else {
-                        $req_config['globalMiddlewareActions'] = $globalMiddlewareActions;
-                    }
+                if (isset($req_config['globalMiddlewareActions']) && !empty($req_config['globalMiddlewareActions'])) {
+                    $req_config['globalMiddlewareActions'] = array_merge($req_config['globalMiddlewareActions'], $globalMiddlewareActions);
+                } else {
+                    $req_config['globalMiddlewareActions'] = $globalMiddlewareActions;
                 }
 
                 $this->request_routes = array_merge($this->request_routes, $this->formatRouteData($req_config));
@@ -229,6 +224,17 @@ class Router {
         }
 
         $this->autoloadFiles();
+        return $this->request_routes;
+    }
+
+    /**
+     * Adds a key => value variable to the request configuration
+     *
+     * @param string $key Key for the value
+     * @param string $value Value to add to the config
+     */
+    public function addRequestConfigVariable($key, $value) {
+        $this->request_configuration["add-config"][$key] = $value;
     }
 
     /**
@@ -249,7 +255,7 @@ class Router {
      *
      * @return void
      */
-    private function makeRoutes() {
+    public function makeRoutes() {
         foreach ($this->request_routes as $route => $data) {
             $this->request_routes_as_routes[] = new Route($this->request, $route, $data, $this->found_route_as_array);
         }
@@ -306,14 +312,6 @@ class Router {
             if ($route->matches()) {
                 $path = "/".$route->toString();
                 if ($path == isset($this->request_configuration['routePrefix'])) $path .= "/";
-
-                if (isset($this->request_routes[$path])) {
-                    $route_config = $this->request_routes[$path];
-                } else $route_config = [];
-
-                if (isset($route_config['autoload'])) {
-                    $this->autoload_files = $route_config['autoload'];
-                }
 
                 $this->request->addVariables($route->variables());
                 $this->autoloadFiles();

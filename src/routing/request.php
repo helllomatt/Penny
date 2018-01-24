@@ -4,7 +4,7 @@ namespace Penny;
 
 class Request {
     private $using_method;
-    public $found_variables;
+    public $found_variables = [];
     private $for_site;
     private $request_type;
     private $found_real_file = false;

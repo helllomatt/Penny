@@ -1,0 +1,11 @@
+{
+    "autoload": {
+        "Test\\": "../../includes"
+    },
+    "routes": {
+        "/": {
+            "view": "homepage.view.php",
+            "middlewareAction": "Test\\Greeting::return_404"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "routes": {
+        "/": {
+            "action": "Test\\Controller::hello",
+            "middlewareAction": "Test\\Greeting::say_hello"
+        }
+    }
+}

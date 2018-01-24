@@ -1,4 +1,5 @@
 {
+    "routePrefix": "/forwarded",
     "routes": {
         "/": {
             "action": "Test\\Controller::hello"

@@ -1,0 +1,4 @@
+{
+    "forwards": ["config-forwarded-to.json"],
+    "routes": {}
+}
