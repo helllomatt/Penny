@@ -17,14 +17,14 @@ class Router {
 
     public function __construct($request) {
         $this->request = $request;
-        $this->findRouteQuery();
-
-        if ($this->request->type() == 'view') $this->loadSiteRoutes();
-        elseif ($this->request->type() == 'api' || $this->request->method() === 'cli') {
-            $this->loadApiRoutes();
-        }
-
-        $this->makeRoutes();
+//        $this->findRouteQuery();
+//
+//        if ($this->request->type() == 'view') $this->loadSiteRoutes();
+//        elseif ($this->request->type() == 'api' || $this->request->method() === 'cli') {
+//            $this->loadApiRoutes();
+//        }
+//
+//        $this->makeRoutes();
 
         return $this;
     }
@@ -79,6 +79,12 @@ class Router {
         return $this->found_route_as_array;
     }
 
+    /**
+     * Formats the route data, adding prefixes and collecting middleware actions
+     *
+     * @param array $req_config The request configuration
+     * @return array Array of routes
+     */
     private function formatRouteData($req_config) {
         $routes = [];
         foreach ($req_config['routes'] as $key => $route) {
@@ -97,7 +103,7 @@ class Router {
             }
 
             if (isset($req_config['routePrefix']) && $this->request->method() != "cli") {
-                $routes[$req_config['routePrefix'].$key] = $route;
+                $routes[clean_slashes($req_config['routePrefix'].$key)] = $route;
             } else {
                 $routes[$key] = $route;
             }
@@ -106,6 +112,12 @@ class Router {
         return $routes;
     }
 
+    /**
+     * Autoloads file specific to the route
+     *
+     * @param array $req_config Request configuration data
+     * @param string $site_path Name of the site folder
+     */
     private function autoload_route_files($req_config, $site_path) {
         if (isset($req_config['autoload'])) {
             $this->get_autoload_files($req_config['autoload'], Config::apiFolder());
@@ -139,7 +151,7 @@ class Router {
 
                 if (!isset($req_config['globalMiddlewareActions'])) $req_config['globalMiddlewareActions'] = [];
                 if (!empty($globalMiddlewareActions)) {
-                    if (isset($req_config['globalMiddlewareActions'])) {
+                    if (isset($req_config['globalMiddlewareActions']) && !empty($req_config['globalMiddlewareActions'])) {
                         $req_config['globalMiddlewareActions'] = array_merge($req_config['globalMiddlewareActions'], $globalMiddlewareActions);
                     } else {
                         $req_config['globalMiddlewareActions'] = $globalMiddlewareActions;
@@ -156,6 +168,8 @@ class Router {
                 }
             }
         }
+
+        return $this->request_routes;
     }
 
     /**

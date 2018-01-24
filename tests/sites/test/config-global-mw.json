@@ -1,0 +1,8 @@
+{
+    "globalMiddlewareActions": ["Test\\Greeting::say_hello"],
+    "routes": {
+        "/": {
+            "view": "homepage.view.php"
+        }
+    }
+}

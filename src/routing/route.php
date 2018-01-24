@@ -206,7 +206,6 @@ class Route {
      * @return void
      */
     private function validateVariables() {
-        print_r($this->route_data);
         if (!isset($this->route_data['variables'])) return;
 
         $req_vars = array_merge($this->found_variables, $this->request->variables());

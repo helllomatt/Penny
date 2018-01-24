@@ -1,0 +1,8 @@
+{
+    "routePrefix": "/forwarded",
+    "routes": {
+        "/": {
+            "view": "homepage.view.php"
+        }
+    }
+}

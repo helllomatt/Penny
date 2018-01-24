@@ -9,19 +9,21 @@ class ViewResponse {
     private $theme;
     private $error_theme;
     private $view;
+    private $error_code;
 
     private static $_global_scripts = [];
 
     public function __construct($route, $config, $error = false) {
         $this->route = $route;
         $this->site_folder = $config['folder'];
-
         $this->config = $config;
-        if (!$error) {
-            static::$_global_scripts = Config::get("globalScripts", true);
-            $this->viewExists();
-            $this->getDefaultTheme();
-        }
+
+//        if (!$error) {
+//            static::$_global_scripts = Config::get("globalScripts", true);
+//            $this->viewExists();
+//            $this->getDefaultTheme();
+//        }
+
         return $this;
     }
 
@@ -39,7 +41,6 @@ class ViewResponse {
         if (!file_exists($file)) {
             $this->getErrorTheme();
             $this->error(404);
-            // throw new ResponseException('The view file specified doesn\'t exist.');
         } else {
             $this->view = $file;
             return true;
@@ -64,7 +65,16 @@ class ViewResponse {
             throw new ResponseException('Theme doesn\'t exist.');
         }
 
-        $this->theme = $file;
+        $this->theme = clean_slashes($file);
+    }
+
+    /**
+     * Returns the full path to the theme file
+     *
+     * @return string Path to theme file
+     */
+    public function themeFile() {
+        return $this->theme;
     }
 
     /**
@@ -72,17 +82,17 @@ class ViewResponse {
      *
      * @return void
      */
-    public function getErrorTheme() {
+    public function getErrorTheme($error_file = "error.php") {
         if (!isset($this->config['theme'])) {
             throw new ResponseException('Theme not defined in the config.');
         }
 
-        $file = REL_ROOT.Config::themeFolder().$this->config['theme']['folder'].'/error.php';
+        $file = REL_ROOT.Config::themeFolder().$this->config['theme']['folder'].'/'.$error_file;
         if (!file_exists($file)) {
             throw new ResponseException('Theme error page doesn\'t exist.');
         }
 
-        $this->error_theme = $file;
+        $this->error_theme = clean_slashes($file);
     }
 
     /**
@@ -102,9 +112,28 @@ class ViewResponse {
      */
     public function error($code) {
         http_response_code($code);
+        $this->error_code = $code;
         $this->getErrorTheme();
         $view = $this;
         include $this->error_theme;
+    }
+
+    /**
+     * Returns the complete path to the error theme file
+     *
+     * @return string Path to the error theme file
+     */
+    public function errorFile() {
+        return $this->error_theme;
+    }
+
+    /**
+     * Returns the current error code
+     *
+     * @return number Error code
+     */
+    public function errorCode() {
+        return $this->error_code;
     }
 
     /**
@@ -118,6 +147,12 @@ class ViewResponse {
         if (file_exists($this->view)) include $this->view;
     }
 
+    /**
+     * Includes a file specific to the site root
+     *
+     * @param string $file File to include from the site folder
+     * @param array $passing_data Data to pass to the site file
+     */
     public function includeSiteFile($file, $passing_data = []) {
         $view = $this;
         $route = $this->route;
@@ -160,7 +195,9 @@ class ViewResponse {
      * @return string html tag of baseref
      */
     public function baseHref() {
-        return "<base href='/".trim(str_replace($_SERVER['HTTP_HOST'], "", $this->config['domain']), "/")."/'>";
+        $server_host = filter_input(INPUT_SERVER, "HTTP_HOST");
+        $host = $server_host == null ? "localhost" : $server_host;
+        return "<base href='".clean_slashes("/".trim(str_replace($host, "", $this->config['domain']), "/")."/")."'>";
     }
 
     /**
@@ -178,6 +215,7 @@ class ViewResponse {
                     continue;
                 } elseif (strpos($script, "://") !== false) {
                     $html[] = "<script type='text/javascript' src='".$script."'></script>";
+                    continue;
                 } else {
                     $web_path = $script;
                     $path = REL_ROOT.Config::siteFolder($this->config['folder'])."/".$script;
@@ -192,7 +230,7 @@ class ViewResponse {
                             $files = FileSystem::scan($gpath);
                             foreach ($files as $file) {
                                 if (substr($file, -2, 2) === "js") {
-                                    $html[] = "<script type='text/javascript' src='".$web_path."/".$file."'></script>";
+                                    $html[] = "<script type='text/javascript' src='".clean_slashes($web_path."/".$file)."'></script>";
                                 }
                             }
                         } else {
@@ -233,12 +271,12 @@ class ViewResponse {
                             $files = FileSystem::scan($path);
                             foreach ($files as $file) {
                                 if (substr($file, -3, 3) === "css") {
-                                    $html[] = "<link rel='stylesheet' type='text/css' href='".$web_path."/".$file."'>";
+                                    $html[] = "<link rel='stylesheet' type='text/css' href='".clean_slashes($web_path."/".$file)."'>";
                                 }
                             }
                         } else {
                             if (substr($style, -3, 3) === "css") {
-                                $html[] = "<link rel='stylesheet' type='text/css' href='".$style."'>";
+                                $html[] = "<link rel='stylesheet' type='text/css' href='".clean_slashes($style)."'>";
                             }
                         }
                     }
@@ -249,12 +287,22 @@ class ViewResponse {
         return static::getGlobalStyles().implode("", $html);
     }
 
+    /**
+     * Returns an array of all collected global scripts
+     *
+     * @return array Collected global scripts
+     */
     public static function globalScripts() {
         return static::$_global_scripts;
     }
 
+    /**
+     * Adds a script to the global scripts array
+     *
+     * @param string $script Path to script
+     */
     public static function addGlobalScript($script) {
-        return static::$_global_scripts[] = $script;
+        static::$_global_scripts[] = $script;
     }
 
     /**
@@ -268,10 +316,17 @@ class ViewResponse {
 
         $html = [];
         foreach ($scripts as $script) {
-            $html[] = "<script src='".$script."'></script>";
+            $html[] = "<script type='text/javascript' src='".$script."'></script>";
         }
 
         return implode("", $html);
+    }
+
+    /**
+     * Clears all scripts in the global scripts array
+     */
+    public static function clearGlobalScripts() {
+        static::$_global_scripts = [];
     }
 
     /**

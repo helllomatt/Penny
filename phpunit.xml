@@ -24,6 +24,9 @@
     <filter>
         <whitelist>
             <directory suffix=".php">src/</directory>
+            <exclude>
+                <directory>src/exceptions/</directory>
+            </exclude>
         </whitelist>
     </filter>
 </phpunit>

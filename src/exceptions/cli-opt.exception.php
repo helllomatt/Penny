@@ -2,6 +2,4 @@
 
 namespace Penny;
 
-class CliOptException extends \Exception {
-    
-}
+class CliOptException extends \Exception { }

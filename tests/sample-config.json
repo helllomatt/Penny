@@ -1,6 +1,6 @@
 {
     "siteRootFolder": "tests/sites/",
-    "apiRootFolder": "api/",
+    "apiRootFolder": "tests/apis/",
     "themeRootFolder": "tests/themes/",
     "globalFolder": "tests/fs",
     "autoload": {
