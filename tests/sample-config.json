@@ -16,6 +16,13 @@
         },
         "domain": "localhost/test"
     },
+    "anotherSite": {
+        "folder": "test",
+        "theme": {
+            "folder": "test"
+        },
+        "domain": "localhost/another-test"
+    },
     "apiIdentity": "api",
     "globalScripts": [
         "global/test.js",

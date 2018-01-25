@@ -45,7 +45,7 @@ class Request {
      * @param boolean $return - Return only, or actually redirect
      * @return boolean
      */
-    private function redirectSlash($return = false) {
+    public function redirectSlash($return = false) {
         if ($this->found_variables['pennyRoute'] == "") return;
         $server_host = filter_input(INPUT_SERVER, "HTTP_HOST");
         $server_uri = filter_input(INPUT_SERVER, "REQUEST_URI");
@@ -269,7 +269,10 @@ class Request {
                         } else {
                             $this->found_variables['pennyRoute'] = "/";
                         }
+                    } else {
+                        $this->found_variables['pennyRoute'] = $cleaned_path;
                     }
+
                     return $this;
                 }
             }

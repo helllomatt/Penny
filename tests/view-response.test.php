@@ -36,59 +36,12 @@ class ViewResponseTest extends TestCase {
         $this->assertEquals(404, $vr->errorCode());
     }
 
-//    public function testCheckingNoViewDefined() {
-//        $route = $this->getMockBuilder("Penny\Route")->disableOriginalConstructor()->setMethods(["data"])->getMock();
-//        $route->expects($this->any())->method("data")->willReturn([]);
-//        $vr = new ViewResponse($route, []);
-//
-//        $this->expectException('Penny\ResponseException');
-//        $vr->viewExists();
-//    }
-//
-////    public function testNoExistingView() {
-////        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
-////        $request->expects($this->any())->method("site")->willReturn("defaultSite");
-////        $route = new Route($request, '/', ['view' => 'asdf.php'], ['']);
-////        $this->expectException('Penny\ResponseException');
-////        $vr = new ViewResponse($route, Config::forSite($request->site()));
-////    }
-//
-//    public function testNoThemeDefined() {
-//        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
-//        $request->expects($this->any())->method("site")->willReturn("defaultSite");
-//        $route = new Route($request, '/', [], ['']);
-//        $this->expectException('Penny\ResponseException');
-//        $vr = new ViewResponse($route, ['folder' => 'default']);
-//        $vr->getTheme();
-//    }
-//
-//    public function testNoThemeExists() {
-//        $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
-//        $request->expects($this->any())->method("site")->willReturn("defaultSite");
-//        $route = new Route($request, '/', [], ['']);
-//        $this->expectException('Penny\ResponseException');
-//        $vr = new ViewResponse($route, ['folder' => 'default', 'theme' => 'asdf']);
-//        $vr->getTheme();
-//    }
-//
-//    // public function testResponse() {
-//    //     $request = $this->getMockBuilder("Penny\Request")->disableOriginalConstructor()->setMethods([])->getMock();
-//    //     $request->expects($this->any())->method("site")->willReturn("defaultSite");
-//    //     $route = new Route($request, '/', ['view' => 'homepage.view.php'], ['']);
-//    //     $vr = new ViewResponse($route, Config::forSite($request->site()));
-//    //
-//    //     $this->expectOutputString('<html><body>\nhi!\n</body></html>');
-//    //     $vr->respond();
-//    // }
-//
-//    public function testGlobalScripts() {
-//        $this->assertEquals("<script src='global/test.js'></script><script src='global/framework.js'></script>", ViewResponse::getGlobalScripts());
-//    }
-//
-//    public function testGlobalStyles() {
-//        $this->assertEquals("<link rel='stylesheet' type='text/css' href='global/test.css'>", ViewResponse::getGlobalStyles());
-//    }
-//
+    public function testSettingGettingAndClearingGlobalScripts() {
+        ViewResponse::setGlobalScripts(["script1.js"]);
+        $this->assertEquals(["script1.js"], ViewResponse::globalScripts());
+        ViewResponse::clearGlobalScripts();
+    }
+
     public function testGettingDefaultTheme() {
         $route = $this->getMockBuilder("Penny\Route")->disableOriginalConstructor()->setMethods(["data"])->getMock();
         $route->expects($this->any())->method("data")->willReturn(["theme" => "index.php", "view" => "homepage.view.php"]);

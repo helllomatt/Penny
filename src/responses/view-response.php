@@ -18,12 +18,6 @@ class ViewResponse {
         $this->site_folder = $config['folder'];
         $this->config = $config;
 
-//        if (!$error) {
-//            static::$_global_scripts = Config::get("globalScripts", true);
-//            $this->viewExists();
-//            $this->getDefaultTheme();
-//        }
-
         return $this;
     }
 
@@ -294,6 +288,15 @@ class ViewResponse {
      */
     public static function globalScripts() {
         return static::$_global_scripts;
+    }
+
+    /**
+     * Overwrites the global scripts array with a new array
+     *
+     * @param array $scripts Array of scripts to set as global
+     */
+    public static function setGlobalScripts($scripts) {
+        static::$_global_scripts = $scripts;
     }
 
     /**

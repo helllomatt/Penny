@@ -43,6 +43,12 @@ class RequestTests extends TestCase {
         $this->assertEquals('defaultSite', $request->site());
     }
 
+    public function testGettingSiteWithSubFolders() {
+        Config::load('./tests/sample-config.json');
+        $request = (new Request(['pennyRoute' => 'another-test/test']))->overrideMethod('get')->setDomain("localhost/another-test/test")->findSite();
+        $this->assertEquals('anotherSite', $request->site());
+    }
+
     public function testRealFile() {
         Config::load('./tests/sample-config.json');
         $request = (new Request(['pennyRoute' => 'realfile.txt']))
