@@ -19,9 +19,13 @@ try {
 
     Config::load(REL_ROOT.'config.json');
 
-    $request = new Request($argv, SITE);
+    $request = new Request($argv);
 
     $router = new Router($request);
+    $router->findRouteQuery();
+    $router->loadApiRoutes();
+
+    $router->makeRoutes();
     $route = $router->getMatch();
 
     if ($route === null && $request->method() == 'cli') {

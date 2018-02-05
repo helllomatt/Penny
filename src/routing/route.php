@@ -240,6 +240,7 @@ class Route {
      */
     private function matchCli() {
         $command = $this->route_string;
+        if (empty($this->uri_route[0])) return false;
         return $command === $this->uri_route[0];
     }
 
