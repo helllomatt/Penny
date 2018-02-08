@@ -2,9 +2,6 @@
 
 namespace Penny;
 
-use Basically\Crud;
-use Basically\Errors;
-
 class Route {
     private $request;
     private $route_string;
