@@ -35,7 +35,7 @@ class Request {
      */
     public function nonCliRequest() {
         $this->redirectSlash();
-        $this->findSite($this->site());
+        $this->findSite();
         $this->checkRealFile();
     }
 
